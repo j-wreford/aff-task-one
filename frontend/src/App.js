@@ -1,10 +1,22 @@
 import React from 'react';
-import Button from '@material-ui/core/Button';
+import Grid from '@material-ui/core/Grid'
+
+import Login from './component/Login'
 import './resource/App.css';
 
 function App() {
   return (
-    <Button variant="contained" color="primary">Hello, world!</Button>
+    <Grid
+      container
+      alignItems="center"
+      justify="center"
+      direction="column"
+      style={{height: "100vh"}}
+    >
+      <Grid item sm={12} md={8} lg={3}>
+        <Login></Login>
+      </Grid>
+    </Grid>
   );
 }
 
