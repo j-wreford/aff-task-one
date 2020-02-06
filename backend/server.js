@@ -7,6 +7,7 @@ const cors = require('cors')                    // express middleware to enable 
 const bodyParser = require('body-parser')       // express middleware to parse request bodies into an object
 
 const routeApi = require('./api/api-router')    // routes request endpoints to api routines
+const dbConnect = require('./database/connect') // connects to mongodb using mongoose
 
 /**
  * Object instantiations
@@ -14,6 +15,11 @@ const routeApi = require('./api/api-router')    // routes request endpoints to a
 const app = express()                           // the express application itself
 const router = express.Router()                 // express request routing
 const server = http.createServer(app)           // http server
+const database = dbConnect(                     // mongoose database connection
+    "localhost",
+    27017,
+    "aff_task_one"
+)
 
 /**
  * Express middleware
@@ -32,6 +38,13 @@ app.set("port", process.env.PORT || 5000)
  * API configuration
  */
 routeApi(router)
+
+/**
+ * Database
+ */
+database.once("open", () => {
+    console.log(`Connected to mongodb running on port ${database.port} (connected to database ${database.name}).`)
+})
 
 /**
  * Begin listening for requests
