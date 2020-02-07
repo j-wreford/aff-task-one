@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState }  from 'react';
+import { Redirect } from 'react-router'
 import clsx from 'clsx';
 import {
     Drawer, List, Typography, Divider, IconButton,
@@ -6,7 +7,9 @@ import {
 } from '@material-ui/core'
 import {
     ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon,
-    InboxIcon as Icon, Mail as MailIcon, Menu as MenuIcon, Inbox as InboxIcon
+    InboxIcon as Icon, Mail as MailIcon, Menu as MenuIcon, Inbox as InboxIcon,
+    CloudUpload as CloudUploadIcon, PermMedia as PermMediaIcon,
+    ExitToApp as ExitToAppIcon, Chat as ChatIcon
 } from '@material-ui/icons'
 import {
     makeStyles, useTheme
@@ -26,6 +29,9 @@ const useStyles = makeStyles(theme => ({
   },
   menuButton: {
     marginRight: 36
+  },
+  icon: {
+      marginLeft: 8
   },
   hide: {
     display: 'none'
@@ -83,6 +89,16 @@ export default function AppDrawer(props) {
     const theme = useTheme()
 
     /**
+     * When redirect.do is true, a Redirect component will be rendered,
+     * allowing the router to switch to another view. The path used will
+     * be redirect.to.
+     */
+    const [redirect, setRedirect] = useState({
+        do: false,
+        to: ""
+    })
+
+    /**
      * Informs the parent component that the close drawer button
      * was just clicked
      */
@@ -91,6 +107,21 @@ export default function AppDrawer(props) {
             props.onDrawerClose()
     }
 
+    /**
+     * Triggers a redirect
+     * 
+     * @TODO Involve session ending etc
+     */
+    const handleLogoutClick = () => {
+        setRedirect({
+            do: true,
+            to: "/login"
+        })
+    }
+
+    if (redirect.do)
+        return <Redirect push to={redirect.to} />
+    
     return (
         <div className={classes.root}>
             <Drawer
@@ -113,21 +144,33 @@ export default function AppDrawer(props) {
                 </div>
                 <Divider />
                 <List>
-                    {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-                        <ListItem button key={text}>
-                        <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-                        <ListItemText primary={text} />
-                        </ListItem>
-                    ))}
+                    <ListItem button key="upload">
+                        <ListItemIcon className={classes.icon}>
+                            <CloudUploadIcon />
+                        </ListItemIcon>
+                        <ListItemText primary="Upload" secondary="Create a document"/>
+                    </ListItem>
+                    <ListItem button key="browse">
+                        <ListItemIcon className={classes.icon}>
+                            <PermMediaIcon />
+                        </ListItemIcon>
+                        <ListItemText primary="Browse" secondary="Manage documents"/>
+                    </ListItem>
+                    <ListItem button key="chat">
+                        <ListItemIcon className={classes.icon}>
+                            <ChatIcon />
+                        </ListItemIcon>
+                        <ListItemText primary="Chat" secondary="Say hello"/>
+                    </ListItem>
                 </List>
                 <Divider />
                 <List>
-                    {['All mail', 'Trash', 'Spam'].map((text, index) => (
-                        <ListItem button key={text}>
-                        <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-                        <ListItemText primary={text} />
-                        </ListItem>
-                    ))}
+                    <ListItem button key="logout" onClick={handleLogoutClick}>
+                        <ListItemIcon className={classes.icon}>
+                            <ExitToAppIcon />
+                        </ListItemIcon>
+                        <ListItemText primary="Logout"/>
+                    </ListItem>
                 </List>
             </Drawer>
         </div>
