@@ -10,6 +10,7 @@ import { makeStyles } from '@material-ui/core/styles'
 // custom components
 import AppTopBar from './common/AppTopBar'
 import AppDrawer from './common/AppDrawer'
+import AppArea from './common/AppArea'
 
 // contexts
 import UserContextProvider from '../context/UserContext'
@@ -65,8 +66,9 @@ export default function Layout() {
             {console.log(drawerOpen)}
             <UserContextProvider>
                 <AppTopBar onDrawerOpen={handleDrawerOpened} shift={drawerOpen} />
+                <AppDrawer onDrawerClose={handleDrawerClosed} open={drawerOpen} />
+                <AppArea />
             </UserContextProvider>
-            <AppDrawer onDrawerClose={handleDrawerClosed} open={drawerOpen} />
         </div>
     )
 }
