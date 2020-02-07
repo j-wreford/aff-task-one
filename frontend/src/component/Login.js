@@ -1,17 +1,9 @@
 import React, { Component } from 'react'
-import Grid from '@material-ui/core/Grid'
-import Paper from '@material-ui/core/Paper'
-import Box from '@material-ui/core/Box'
-import FilledInput from '@material-ui/core/FilledInput'
-import OutlinedInput from '@material-ui/core/OutlinedInput';
-import InputLabel from '@material-ui/core/InputLabel';
-import InputAdornment from '@material-ui/core/InputAdornment';
-import FormControl from '@material-ui/core/FormControl';
-import Button from '@material-ui/core/Button'
-import IconButton from '@material-ui/core/IconButton';
-import Visibility from '@material-ui/icons/Visibility';
-import VisibilityOff from '@material-ui/icons/VisibilityOff';
-import Typography from '@material-ui/core/Typography'
+import {
+    Grid, Paper, Box, FilledInput, OutlinedInput, InputLabel, InputAdornment,
+    FormControl, Button, IconButton, Typography
+} from '@material-ui/core'
+import {Visibility, VisibilityOff} from '@material-ui/icons'
 
 export default class Login extends Component {
 
