@@ -1,76 +1,24 @@
-import React, { useState }  from 'react';
+"use strict"
+
+// react
+import React  from 'react';
 import { Redirect } from 'react-router'
 import clsx from 'clsx';
-import {
-    Drawer, List, Typography, Divider, IconButton,
-    ListItem, ListItemIcon, ListItemText
-} from '@material-ui/core'
-import {
-    ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon,
-    InboxIcon as Icon, Mail as MailIcon, Menu as MenuIcon, Inbox as InboxIcon,
-    CloudUpload as CloudUploadIcon, PermMedia as PermMediaIcon,
-    ExitToApp as ExitToAppIcon, Chat as ChatIcon
-} from '@material-ui/icons'
+
+// material ui
+import { Drawer, List, Typography, Divider, IconButton, ListItem, ListItemIcon, ListItemText } from '@material-ui/core'
+import { ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon, InboxIcon as Icon, Mail as MailIcon, Menu as MenuIcon, Inbox as InboxIcon, CloudUpload as CloudUploadIcon, PermMedia as PermMediaIcon, ExitToApp as ExitToAppIcon, Chat as ChatIcon } from '@material-ui/icons'
 import {
     makeStyles, useTheme
 } from '@material-ui/core/styles';
 
-/**
- * Static width for the drtawer
- */
-const drawerWidth = 240;
+// application
+import appDrawerStyles from '../../resource/styles/appDrawerStyles'
 
 /**
  * Component styles
  */
-const useStyles = makeStyles(theme => ({
-  root: {
-    display: 'flex'
-  },
-  menuButton: {
-    marginRight: 36
-  },
-  icon: {
-      marginLeft: 8
-  },
-  hide: {
-    display: 'none'
-  },
-  drawer: {
-    width: drawerWidth,
-    flexShrink: 0,
-    whiteSpace: 'nowrap'
-  },
-  drawerOpen: {
-    width: drawerWidth,
-    transition: theme.transitions.create('width', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen
-    })
-  },
-  drawerClose: {
-    transition: theme.transitions.create('width', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen
-    }),
-    overflowX: 'hidden',
-    width: theme.spacing(7) + 1,
-    [theme.breakpoints.up('sm')]: {
-      width: theme.spacing(9) + 1
-    }
-  },
-  toolbar: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    padding: theme.spacing(0, 1),
-    ...theme.mixins.toolbar
-  },
-  content: {
-    flexGrow: 1,
-    padding: theme.spacing(3)
-  }
-}))
+const useStyles = appDrawerStyles
 
 /**
  * Presents a shrinkable menu drawer containing links to the application's
@@ -93,7 +41,7 @@ export default function AppDrawer(props) {
      * allowing the router to switch to another view. The path used will
      * be redirect.to.
      */
-    const [redirect, setRedirect] = useState({
+    const [redirect, setRedirect] = React.useState({
         do: false,
         to: ""
     })
