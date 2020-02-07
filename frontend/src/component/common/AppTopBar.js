@@ -9,12 +9,7 @@ import { Menu as MenuIcon, Search as SearchIcon } from '@material-ui/icons'
 
 // application
 import { UserContext } from '../../context/UserContext'
-import appTopBarStyles from '../../resource/styles/appTopBarStyles'
-
-/**
- * Component styles
- */
-const useStyles = appTopBarStyles
+import useStyles from '../../resource/styles/appTopBarStyles'
 
 /**
  * Presents a bar showing information about the current view and user

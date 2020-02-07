@@ -13,12 +13,7 @@ import {
 } from '@material-ui/core/styles';
 
 // application
-import appDrawerStyles from '../../resource/styles/appDrawerStyles'
-
-/**
- * Component styles
- */
-const useStyles = appDrawerStyles
+import useStyles from '../../resource/styles/appDrawerStyles'
 
 /**
  * Presents a shrinkable menu drawer containing links to the application's
