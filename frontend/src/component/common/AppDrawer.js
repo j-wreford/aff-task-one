@@ -8,9 +8,7 @@ import clsx from 'clsx';
 // material ui
 import { Drawer, List, Typography, Divider, IconButton, ListItem, ListItemIcon, ListItemText } from '@material-ui/core'
 import { ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon, InboxIcon as Icon, Mail as MailIcon, Menu as MenuIcon, Inbox as InboxIcon, CloudUpload as CloudUploadIcon, PermMedia as PermMediaIcon, ExitToApp as ExitToAppIcon, Chat as ChatIcon } from '@material-ui/icons'
-import {
-    makeStyles, useTheme
-} from '@material-ui/core/styles';
+import { useTheme } from '@material-ui/core/styles';
 
 // application
 import useStyles from '../../resource/styles/appDrawerStyles'
