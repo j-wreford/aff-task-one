@@ -1,14 +1,17 @@
 import React, { useState } from 'react'
+import { Link } from 'react-router-dom'
 import clsx from 'clsx'
 import {
     fade, makeStyles
 } from '@material-ui/core/styles';
 import {
-    AppBar, Toolbar, InputBase, IconButton, Typography
+    AppBar, Toolbar, InputBase, IconButton, Typography, Button
 } from '@material-ui/core'
 import {
     Menu as MenuIcon, Search as SearchIcon
 } from '@material-ui/icons'
+
+import { UserContext } from '../../context/UserContext'
 
 /**
  * Static width for the drtawer
@@ -98,12 +101,25 @@ export default function AppTopBar(props) {
     const classes = useStyles()
 
     /**
+     * Information about the currently logged in user
+     */
+    const userContext = React.useContext(UserContext)
+
+    /**
      * Informs the parent component that the drawer button
      * was just clicked
      */
     const handleDrawerButtonClick = () => {
         if (typeof props.onDrawerOpen === 'function')
             props.onDrawerOpen()
+    }
+
+    /**
+     * Shows a login button if the user is logged out
+     */
+    const renderLoginButton = () => {
+        if (!userContext)
+            return <Button variant="contained" color="secondary" component={Link} to="/login">Login</Button>
     }
 
     return (
@@ -128,6 +144,7 @@ export default function AppTopBar(props) {
                         AFF Assignment
                     </Typography>
                     <div className={classes.grow} />
+                    {renderLoginButton()}
                     <div className={classes.search}>
                         <div className={classes.searchIcon}>
                             <SearchIcon />
