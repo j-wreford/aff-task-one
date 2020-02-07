@@ -1,10 +1,18 @@
-import React, { useState } from 'react';
-import {
-    makeStyles
-} from '@material-ui/core/styles';
+"use strict"
 
+// react
+import React from 'react'
+import {Redirect} from 'react-router'
+
+// react material ui
+import { makeStyles } from '@material-ui/core/styles'
+
+// custom components
 import AppTopBar from './common/AppTopBar'
 import AppDrawer from './common/AppDrawer'
+
+// contexts
+import UserContextProvider from '../context/UserContext'
 
 /**
  * Component styles
@@ -15,6 +23,10 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
+/**
+ * Presents a general structure for the application once the user
+ * has logged in
+ */
 export default function Layout() {
 
     /**
@@ -28,14 +40,14 @@ export default function Layout() {
      * Controls the shift state for AppTopBar, and the open state for
      * AppDrawer.
      */
-    const [drawerOpen, setDrawerOpen] = useState(false)
+    const [drawerOpen, setDrawerOpen] = React.useState(false)
 
     /**
      * Opens the drawer.
      * 
      * AppTopBar calls this method through its onDrawerOpen prop.
      */
-    const openDrawer = () => {
+    const handleDrawerOpened = () => {
         setDrawerOpen(true)
     }
 
@@ -44,14 +56,17 @@ export default function Layout() {
      * 
      * AppDrawer calls this method through its onDrawerClose prop.
      */
-    const closeDrawer = () => {
+    const handleDrawerClosed = () => {
         setDrawerOpen(false)
     }
 
     return (
         <div className={classes.root}>
-            <AppTopBar onDrawerOpen={openDrawer} shift={drawerOpen} />
-            <AppDrawer onDrawerClose={closeDrawer} open={drawerOpen} />
+            {console.log(drawerOpen)}
+            <UserContextProvider>
+                <AppTopBar onDrawerOpen={handleDrawerOpened} shift={drawerOpen} />
+            </UserContextProvider>
+            <AppDrawer onDrawerClose={handleDrawerClosed} open={drawerOpen} />
         </div>
     )
 }
