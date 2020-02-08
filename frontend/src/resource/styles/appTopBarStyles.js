@@ -11,15 +11,6 @@ export default makeStyles(theme => ({
     grow: {
       flexGrow: 1
     },
-    appBar: {
-        zIndex: theme.zIndex.drawer + 1
-    },
-    appBarShift: {
-        //
-    },
-    menuButton: {
-      marginRight: theme.spacing(2)
-    },
     title: {
       display: 'none',
       [theme.breakpoints.up('sm')]: {

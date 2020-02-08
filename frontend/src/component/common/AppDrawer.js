@@ -6,8 +6,8 @@ import { Redirect } from 'react-router'
 import clsx from 'clsx'
 
 // material ui
-import { Drawer, List, Typography, Divider, IconButton, ListItem, ListItemIcon, ListItemText } from '@material-ui/core'
-import { ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon, InboxIcon as Icon, Mail as MailIcon, Menu as MenuIcon, Inbox as InboxIcon, CloudUpload as CloudUploadIcon, PermMedia as PermMediaIcon, ExitToApp as ExitToAppIcon, Chat as ChatIcon } from '@material-ui/icons'
+import { Drawer, List, Typography, Divider, IconButton, ListItem, ListItemIcon, ListItemText, Fade } from '@material-ui/core'
+import { ChevronLeft as ChevronLeftIcon, InboxIcon as Icon, Mail as MailIcon, Menu as MenuIcon, Inbox as InboxIcon, CloudUpload as CloudUploadIcon, PermMedia as PermMediaIcon, ExitToApp as ExitToAppIcon, Chat as ChatIcon } from '@material-ui/icons'
 import { useTheme } from '@material-ui/core/styles'
 
 // application
@@ -30,6 +30,12 @@ export default function AppDrawer(props) {
     const theme = useTheme()
 
     /**
+     * Dictates weather or not the drawer is open, and controls the
+     * icon that's shown to toggle this state
+     */
+    const [open, setOpen] = React.useState(false)
+
+    /**
      * When redirect.do is true, a Redirect component will be rendered,
      * allowing the router to switch to another view. The path used will
      * be redirect.to.
@@ -43,9 +49,8 @@ export default function AppDrawer(props) {
      * Informs the parent component that the close drawer button
      * was just clicked
      */
-    const handleDrawerClose = () => {
-        if (typeof props.onDrawerClose === 'function')
-            props.onDrawerClose()
+    const handleToggleButtonClick = () => {
+        setOpen(!open)
     }
 
     /**
@@ -65,21 +70,31 @@ export default function AppDrawer(props) {
     
     return (
         <Drawer
+            elevation={3}
             variant="permanent"
-            className={clsx(classes.drawer, {
-                [classes.drawerOpen]: props.open,
-                [classes.drawerClose]: !props.open
-            })}
+            className={clsx(
+                classes.drawer,
+                {
+                    [classes.drawerOpen]: open,
+                    [classes.drawerClose]: !open
+                }
+            )}
             classes={{
-                paper: clsx({
-                    [classes.drawerOpen]: props.open,
-                    [classes.drawerClose]: !props.open
+                paper: clsx(classes.drawerPaper, {
+                    [classes.drawerOpen]: open,
+                    [classes.drawerClose]: !open
                 })
             }}
         >
             <div className={classes.toolbar}>
-                <IconButton onClick={handleDrawerClose}>
-                    {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+                <Fade in={open}>
+                    <Typography className={classes.drawerTitle} variant="h6">
+                        Menu
+                    </Typography>
+                </Fade>
+                <div className={classes.drawerTitleSpacing}></div>
+                <IconButton onClick={handleToggleButtonClick}>
+                    {open ? <ChevronLeftIcon className={classes.drawerToolbarIcon} /> : <MenuIcon className={classes.drawerToolbarIcon} />}
                 </IconButton>
             </div>
             <Divider />

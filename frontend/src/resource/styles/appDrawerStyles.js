@@ -19,6 +19,10 @@ export default makeStyles(theme => ({
         flexShrink: 0,
         whiteSpace: 'nowrap'
     },
+    drawerPaper: {
+        boxShadow: "1px 0px 0px rgba(0, 0, 0, 0.12)",
+        borderRight: "none"
+    },
     drawerOpen: {
         width: drawerWidth,
         transition: theme.transitions.create('width', {
@@ -37,12 +41,26 @@ export default makeStyles(theme => ({
             width: theme.spacing(9) + 1
         }
     },
+    drawerTitle: {
+        paddingLeft: theme.spacing(0)
+    },
+    drawerTitleSpacing: {
+        flexGrow: 1,
+    },
     toolbar: {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'flex-end',
-        padding: theme.spacing(0, 1),
+        paddingLeft: theme.spacing(3),
+        paddingRight: theme.spacing(1.75),
+        color: "#ffffff",
+        background: theme.palette.primary.dark,
+        boxShadow: 3,
+        boxShadow: "0px 2px 4px -1px rgba(0,0,0,0.2), 0px 4px 5px 0px rgba(0,0,0,0.14), 0px 1px 10px 0px rgba(0,0,0,0.12)",
         ...theme.mixins.toolbar
+    },
+    drawerToolbarIcon: {
+        color: "#ffffff"
     },
     content: {
         flexGrow: 1,

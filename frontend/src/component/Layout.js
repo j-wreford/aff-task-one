@@ -27,38 +27,12 @@ export default function Layout() {
      */
     const classes = useStyles();
 
-    /**
-     * Drawer open state.
-     * 
-     * Controls the shift state for AppTopBar, and the open state for
-     * AppDrawer.
-     */
-    const [drawerOpen, setDrawerOpen] = React.useState(false)
-
-    /**
-     * Opens the drawer.
-     * 
-     * AppTopBar calls this method through its onDrawerOpen prop.
-     */
-    const handleDrawerOpened = () => {
-        setDrawerOpen(true)
-    }
-
-    /**
-     * Closes the drawer.
-     * 
-     * AppDrawer calls this method through its onDrawerClose prop.
-     */
-    const handleDrawerClosed = () => {
-        setDrawerOpen(false)
-    }
-
     return (
         <div id="Layout" className={classes.root}>
             <UserContextProvider>
-                <AppDrawer onDrawerClose={handleDrawerClosed} open={drawerOpen} />
+                <AppDrawer />
                 <AppArea>
-                    <AppTopBar onDrawerOpen={handleDrawerOpened} shift={drawerOpen} />    
+                    <AppTopBar />    
                 </AppArea>
             </UserContextProvider>
         </div>
