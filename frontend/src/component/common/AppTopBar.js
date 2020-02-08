@@ -45,9 +45,9 @@ export default function AppTopBar(props) {
     }
 
     return (
-        <div className={classes.root}>
+        <div id="AppTopBar" className={classes.root}>
             <AppBar
-                position="fixed"
+                position="sticky"
                 className={clsx(classes.appBar, {
                     [classes.appBarShift]: props.shift || false,
                 })}

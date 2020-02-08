@@ -5,11 +5,11 @@ import React from 'react'
 import { Route } from 'react-router-dom'
 
 // material ui
-import { Typography } from '@material-ui/core'
+import { Typography, Paper } from '@material-ui/core'
 
 // application
 import { UserContext } from '../../context/UserContext'
-import classes from '../../resource/styles/appAreaStyles'
+import useStyles from '../../resource/styles/appAreaStyles'
 
 /**
  * Presents the main container for each one of the applications' views
@@ -18,18 +18,23 @@ import classes from '../../resource/styles/appAreaStyles'
 export default function AppArea(props) {
 
     /**
+     * Component classes
+     */
+    const classes = useStyles()
+
+    /**
      * Information about the currently logged in user
      */
     const userContext = React.useContext(UserContext)
 
     /**
-     * Potentially renders the appropriate routes if the user is
+     * Potentially renders the appropriate route if the user is
      * logged in.
      * 
      * If the user is not logged in, then the MediaBrowser is rendered
      * with severely limited functionality.
      */
-    const maybeRenderRoutes = () => {
+    const renderRoutes = () => {
         
         let components = (
             <main className={classes.content}>
@@ -52,6 +57,9 @@ export default function AppArea(props) {
     }
 
     return (
-        maybeRenderRoutes()
+        <div id="AppArea" className={classes.root}>
+            {props.children}
+            {renderRoutes()}
+        </div>
     )
 }

@@ -7,22 +7,14 @@ import {Redirect} from 'react-router'
 // react material ui
 import { makeStyles } from '@material-ui/core/styles'
 
-// custom components
+// application
 import AppTopBar from './common/AppTopBar'
 import AppDrawer from './common/AppDrawer'
 import AppArea from './common/AppArea'
+import useStyles from '../resource/styles/layoutStyles'
 
 // contexts
 import UserContextProvider from '../context/UserContext'
-
-/**
- * Component styles
- */
-const useStyles = makeStyles(theme => ({
-    root: {
-        display: 'flex'
-    }
-}))
 
 /**
  * Presents a general structure for the application once the user
@@ -31,7 +23,7 @@ const useStyles = makeStyles(theme => ({
 export default function Layout() {
 
     /**
-     * Theme classes
+     * Component classes
      */
     const classes = useStyles();
 
@@ -62,12 +54,12 @@ export default function Layout() {
     }
 
     return (
-        <div className={classes.root}>
-            {console.log(drawerOpen)}
+        <div id="Layout" className={classes.root}>
             <UserContextProvider>
-                <AppTopBar onDrawerOpen={handleDrawerOpened} shift={drawerOpen} />
                 <AppDrawer onDrawerClose={handleDrawerClosed} open={drawerOpen} />
-                <AppArea />
+                <AppArea>
+                    <AppTopBar onDrawerOpen={handleDrawerOpened} shift={drawerOpen} />    
+                </AppArea>
             </UserContextProvider>
         </div>
     )
