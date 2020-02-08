@@ -8,6 +8,15 @@ import { createMuiTheme } from '@material-ui/core/styles'
  * Used as the property value when declaring a ThemeProvider.
  */
 export default createMuiTheme({
+    override: {
+        MuiDrawer: {
+            paper: {
+                boxShadow: "1px 0px 0px rgba(0, 0, 0, 0.12)",
+                borderRight: "none",
+                background: '#ff0000'
+            }
+        }
+    },
     palette: {
         "common": {
             "black": "#000",

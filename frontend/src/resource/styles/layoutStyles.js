@@ -6,8 +6,5 @@ export default makeStyles(theme => ({
     root: {
         display: "flex",
         flexDirection: "row"
-    },
-    topBarWrapper: {
-        height: "100%"
     }
 }))

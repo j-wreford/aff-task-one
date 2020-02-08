@@ -4,8 +4,8 @@ import { Link } from 'react-router-dom'
 import clsx from 'clsx'
 
 // material ui
-import { AppBar, Toolbar, InputBase, IconButton, Typography, Button } from '@material-ui/core'
-import { Menu as MenuIcon, Search as SearchIcon } from '@material-ui/icons'
+import { AppBar, Toolbar, InputBase, Typography, Button } from '@material-ui/core'
+import { Search as SearchIcon } from '@material-ui/icons'
 
 // application
 import { UserContext } from '../../context/UserContext'
@@ -28,15 +28,6 @@ export default function AppTopBar(props) {
     const userContext = React.useContext(UserContext)
 
     /**
-     * Informs the parent component that the drawer button
-     * was just clicked
-     */
-    const handleDrawerButtonClick = () => {
-        if (typeof props.onDrawerOpen === 'function')
-            props.onDrawerOpen()
-    }
-
-    /**
      * Shows a login button if the user is logged out
      */
     const renderLoginButton = () => {
@@ -53,15 +44,6 @@ export default function AppTopBar(props) {
                 })}
             >
                 <Toolbar>
-                    <IconButton
-                        edge="start"
-                        className={classes.menuButton}
-                        color="inherit"
-                        aria-label="open drawer"
-                        onClick={handleDrawerButtonClick}
-                    >
-                        <MenuIcon />
-                    </IconButton>
                     <Typography className={classes.title} variant="h6" noWrap>
                         AFF Assignment
                     </Typography>
