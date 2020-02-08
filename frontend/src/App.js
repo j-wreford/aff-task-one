@@ -20,13 +20,7 @@ export default function App() {
 
     return (
         <ThemeProvider theme={theme}>
-            <Grid
-                container
-                alignItems="center"
-                justify="center"
-                direction="column"
-                style={{height: "100vh"}}
-            >
+            <Grid id="App">
                 <CssBaseline />
                 <Router>
                     <Switch>
