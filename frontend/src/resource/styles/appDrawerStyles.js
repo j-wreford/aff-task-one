@@ -62,6 +62,10 @@ export default makeStyles(theme => ({
     drawerToolbarIcon: {
         color: "#ffffff"
     },
+    loggedOutDrawerText: {
+        paddingTop: theme.spacing(3),
+        color: "#9e9e9e"
+    },
     content: {
         flexGrow: 1,
         padding: theme.spacing(3)

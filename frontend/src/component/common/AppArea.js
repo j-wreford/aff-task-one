@@ -38,7 +38,19 @@ export default function AppArea(props) {
         
         let components = (
             <main className={classes.content}>
-                {/** @TODO render the media browser, but ONLY public documents */}
+                {/**
+                 * @TODO    If the current path is NOT /browse AND the user
+                 *          is not logged in, then render a  <Redirect />
+                 *          component with path="/browse".
+                 *          This should eleminate the need for conditional
+                 *          route rendering below.
+                 *          For additional security, each route path below
+                 *          can provide an additional safety layer of only
+                 *          rendering if the UserContext is not null.
+                 *          The media browser component will handle the
+                 *          differences between a logged in / logged out 
+                 *          state itself.
+                */}
                 <Typography>Log in you fuck</Typography>
             </main>
         )
