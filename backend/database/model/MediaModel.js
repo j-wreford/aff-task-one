@@ -7,6 +7,7 @@ const mediaSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    // author here will be changed to reference a User model
     author: {
         type: String,
         required: true,
@@ -17,7 +18,8 @@ const mediaSchema = new mongoose.Schema({
         required: true
     },
     tags: {
-        type: [String]
+        type: [String],
+        required: false
     }
 })
 

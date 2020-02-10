@@ -18,20 +18,24 @@ const defaultResponse = (defaultData) => {
 const routeApi = (router) => {
 
     /**
-     * Get all media
+     * Get all media.
+     * 
+     * response.data is an array of the media collection
      */
     router.route('/media').get((request, response) => {
 
         let reply = defaultResponse([])
         
-        models.media.find((error, media) => {
+        models.Media.find((error, media) => {
 
             if (error) {
                 reply.error = error
                 reply.message = "Something went wrong while trying to find your media"
+                response.status(500)
             } else {
                 reply.data = media
                 reply.message = "Successfully found your media"
+                response.status(200)
             }
 
             response.json(reply)
@@ -39,7 +43,9 @@ const routeApi = (router) => {
     })
 
     /**
-     * Find a single piece of media
+     * Find a single piece of media.
+     * 
+     * response.data is the document object of the piece of media requested.
      */
     router.route('/media/:id').get((request, response) => {
 
@@ -49,14 +55,21 @@ const routeApi = (router) => {
         // try/catch block to prevent an uncaught type error
         try {
 
-            models.media.findById(request.params.id, (error, media) => {
+            models.Media.findById(request.params.id, (error, media) => {
                 
                 if (error) {
                     reply.error = error
                     reply.message = "Something went wrong while trying to find this piece of media"
+
+                    if (error.name == "CastError")
+                        response.status(400)
+                    else
+                        response.status(404)
+                        
                 } else {
                     reply.data = media
                     reply.message = "Successfully found this piece of media"
+                    response.status(200)
                 }
 
                 response.json(reply)
@@ -66,7 +79,45 @@ const routeApi = (router) => {
 
             reply.error = error
             reply.message = "Something went wrong while trying to figure out the id of this piece of media"
-            response.json(reply)
+            response.status(500).json(reply)
+        }
+    })
+
+    /**
+     * Upload a single piece of media.
+     * 
+     * response.data is the document object of the just uploaded media
+     */
+    router.route('/media/upload').post((request, response) => {
+
+        let reply = defaultResponse({})
+
+        try {
+
+            const media = new models.Media(request.body)
+
+            media.save()
+                .then((media) => {
+
+                    reply.message = "Successfully uploaded your new piece of media"
+                    reply.data = media
+
+                    response.status(200).json(reply)
+                })
+                .catch((error) => {
+
+                    reply.error = error
+                    reply.message = "Something went wrong while trying to upload your new piece of media"
+
+                    response.status(400).json(reply)
+                })
+
+        } catch(error) {
+
+            reply.error = error
+            reply.message = "Something went wrong while trying to create your new piece of media"
+
+            response.status(500).json(reply)
         }
     })
 }
