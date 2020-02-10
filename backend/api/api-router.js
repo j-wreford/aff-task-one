@@ -18,31 +18,74 @@ const defaultResponse = (defaultData) => {
 const routeApi = (router) => {
 
     /**
-     * Get all media.
-     * 
-     * response.data is an array of the media collection
+     * ENDPOINT /media
      */
-    router.route('/media').get((request, response) => {
+    router.route('/media')
+        /**
+         * Get all media.
+         * 
+         * response.data is an array of the media collection
+         */
+        .get((request, response) => {
 
-        let reply = defaultResponse([])
-        
-        models.Media.find((error, media) => {
+            let reply = defaultResponse([])
+            
+            models.Media.find((error, media) => {
 
-            if (error) {
-                reply.error = error
-                reply.message = "Something went wrong while trying to find your media"
-                response.status(500)
-            } else {
-                reply.data = media
-                reply.message = "Successfully found your media"
-                response.status(200)
-            }
+                if (error) {
+                    reply.error = error
+                    reply.message = "Something went wrong while trying to find your media"
+                    response.status(500)
+                } else {
+                    reply.data = media
+                    reply.message = "Successfully found your media"
+                    response.status(200)
+                }
 
-            response.json(reply)
+                response.json(reply)
+            })
         })
-    })
+        /**
+         * Upload a single piece of media.
+         * 
+         * response.data is the document object of the just uploaded piece of media.
+         */
+        .post((request, response) => {
+
+            let reply = defaultResponse({})
+    
+            try {
+    
+                const media = new models.Media(request.body)
+    
+                media.save()
+                    .then((media) => {
+    
+                        reply.message = "Successfully uploaded your new piece of media"
+                        reply.data = media
+    
+                        response.status(200).json(reply)
+                    })
+                    .catch((error) => {
+    
+                        reply.error = error
+                        reply.message = "Something went wrong while trying to upload your new piece of media"
+    
+                        response.status(400).json(reply)
+                    })
+    
+            } catch(error) {
+    
+                reply.error = error
+                reply.message = "Something went wrong while trying to create your new piece of media"
+    
+                response.status(500).json(reply)
+            }
+        })
 
     /**
+     * ENDPOINT /media/:id
+     * 
      * Find a single piece of media.
      * 
      * response.data is the document object of the piece of media requested.
@@ -79,44 +122,6 @@ const routeApi = (router) => {
 
             reply.error = error
             reply.message = "Something went wrong while trying to figure out the id of this piece of media"
-            response.status(500).json(reply)
-        }
-    })
-
-    /**
-     * Upload a single piece of media.
-     * 
-     * response.data is the document object of the just uploaded piece of media.
-     */
-    router.route('/media/upload').post((request, response) => {
-
-        let reply = defaultResponse({})
-
-        try {
-
-            const media = new models.Media(request.body)
-
-            media.save()
-                .then((media) => {
-
-                    reply.message = "Successfully uploaded your new piece of media"
-                    reply.data = media
-
-                    response.status(200).json(reply)
-                })
-                .catch((error) => {
-
-                    reply.error = error
-                    reply.message = "Something went wrong while trying to upload your new piece of media"
-
-                    response.status(400).json(reply)
-                })
-
-        } catch(error) {
-
-            reply.error = error
-            reply.message = "Something went wrong while trying to create your new piece of media"
-
             response.status(500).json(reply)
         }
     })
