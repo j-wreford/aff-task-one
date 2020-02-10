@@ -1,16 +1,20 @@
 "use strict"
 
+// react
 import React from 'react'
 
 /**
- * Describes data about the currently logged in user
+ * Creates a React context that can be provided / used to pass
+ * data about the currently logged in user
  */
 export const UserContext = React.createContext(false)
 
 /**
- * Provides UserContext to child components
+ * Wraps child components inside the .Provider component, which
+ * facilitates having a central source of updating and setting
+ * the context's value
  */
-const UserContextProvider = (props) => {
+export default (props) => {
 
     /**
      * Default value for when there's no user currently logged in
@@ -20,7 +24,7 @@ const UserContextProvider = (props) => {
     /**
      * Discovers if a user has logged in and returns the result
      */
-    const getUser = () => false
+    const getUser = () => value
 
     return (
         <UserContext.Provider value={getUser()}>
@@ -28,5 +32,3 @@ const UserContextProvider = (props) => {
         </UserContext.Provider>
     )
 }
-
-export default UserContextProvider
