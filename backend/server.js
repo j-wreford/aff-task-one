@@ -8,6 +8,7 @@ const bodyParser = require('body-parser')       // express middleware to parse r
 
 const routeApi = require('./api/api-router')    // routes request endpoints to api routines
 const dbConnect = require('./database/connect') // connects to mongodb using mongoose
+const dbModels = require('./database/models')   // each database model wrapped inside a single object
 
 /**
  * Object instantiations
