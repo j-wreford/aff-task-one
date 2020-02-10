@@ -65,7 +65,7 @@ const routeApi = (router) => {
                         response.status(400)
                     else
                         response.status(404)
-                        
+
                 } else {
                     reply.data = media
                     reply.message = "Successfully found this piece of media"
@@ -86,7 +86,7 @@ const routeApi = (router) => {
     /**
      * Upload a single piece of media.
      * 
-     * response.data is the document object of the just uploaded media
+     * response.data is the document object of the just uploaded piece of media.
      */
     router.route('/media/upload').post((request, response) => {
 
