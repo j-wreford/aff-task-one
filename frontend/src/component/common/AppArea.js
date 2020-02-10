@@ -51,7 +51,7 @@ export default function AppArea(props) {
                  *          differences between a logged in / logged out 
                  *          state itself.
                 */}
-                <Typography>Log in you fuck</Typography>
+                <Typography>You're logged out</Typography>
             </main>
         )
 
