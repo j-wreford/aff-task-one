@@ -2,13 +2,12 @@
 
 // react
 import React  from 'react'
-import { Redirect } from 'react-router'
+import { Link, NavLink } from 'react-router-dom'
 import clsx from 'clsx'
 
 // material ui
-import { Drawer, List, Typography, Divider, Button, IconButton, ListItem, ListItemIcon, ListItemText, Fade } from '@material-ui/core'
-import { ChevronLeft as ChevronLeftIcon, Menu as MenuIcon, CloudUpload as CloudUploadIcon, PermMedia as PermMediaIcon, ExitToApp as ExitToAppIcon, Chat as ChatIcon } from '@material-ui/icons'
-import { useTheme } from '@material-ui/core/styles'
+import { Drawer, Typography, Divider, ButtonBase, IconButton, ListItem, ListItemIcon, ListItemText, Fade } from '@material-ui/core'
+import { ChevronLeft as ChevronLeftIcon, Menu as MenuIcon, CloudUpload as CloudUploadIcon, PermMedia as PermMediaIcon, ExitToApp as ExitToAppIcon, Chat as ChatIcon, VpnKey } from '@material-ui/icons'
 
 // application
 import { UserContext } from '../../context/UserContext'
@@ -31,9 +30,75 @@ export default function AppDrawer(props) {
     const userContext = React.useContext(UserContext)
 
     /**
-     * Application theme
+     * Menu configuration.
+     * 
+     * Contains an array of groupings of menu items.
+     * A divider is rendered between each group.
      */
-    const theme = useTheme()
+    const menuItems = [
+        [
+            {
+                path: "/upload",
+                icon: <CloudUploadIcon />,
+                text: {
+                    primary: "Upload",
+                    secondary: "Create a document"
+                },
+                show: {
+                    loggedIn: true,
+                    loggedOut: false
+                }
+            },
+            {
+                path: "/browse",
+                icon: <PermMediaIcon />,
+                text: {
+                    primary: "Browse",
+                    secondary: "Manage documents"
+                },
+                show: {
+                    loggedIn: true,
+                    loggedOut: false
+                }
+            },
+            {
+                path: "/chat",
+                icon: <ChatIcon />,
+                text: {
+                    primary: "Chat",
+                    secondary: "Say hello"
+                },
+                show: {
+                    loggedIn: true,
+                    loggedOut: false
+                }
+            }
+        ],
+        [
+            {
+                path: "/login",
+                icon: <ExitToAppIcon />,
+                text: {
+                    primary: "Logout"
+                },
+                show: {
+                    loggedIn: true,
+                    loggedOut: false
+                }
+            },
+            {
+                path: "/login",
+                icon: <VpnKey />,
+                text: {
+                    primary: "Login"
+                },
+                show: {
+                    loggedIn: false,
+                    loggedOut: true
+                }
+            }
+        ]
+    ]
 
     /**
      * Dictates weather or not the drawer is open, and controls the
@@ -42,112 +107,12 @@ export default function AppDrawer(props) {
     const [open, setOpen] = React.useState(false)
 
     /**
-     * When redirect.do is true, a Redirect component will be rendered,
-     * allowing the router to switch to another view. The path used will
-     * be redirect.to.
-     */
-    const [redirect, setRedirect] = React.useState({
-        do: false,
-        to: ""
-    })
-
-    /**
-     * Renders the appropriate icons given the UserContext
-     */
-    const renderDrawerList = () => {
-
-        const loggedOut = (
-            <React.Fragment>
-                <ListItem button key="browse">
-                    <ListItemIcon className={classes.icon}>
-                        <PermMediaIcon />
-                    </ListItemIcon>
-                    <ListItemText primary="Browse" secondary="View public files"/>
-                </ListItem>
-            </React.Fragment>
-        )
-
-        const loggedIn = (
-            <React.Fragment>
-                <ListItem button key="upload">
-                    <ListItemIcon className={classes.icon}>
-                        <CloudUploadIcon />
-                    </ListItemIcon>
-                    <ListItemText primary="Upload" secondary="Create a document"/>
-                </ListItem>
-                <ListItem button key="browse">
-                    <ListItemIcon className={classes.icon}>
-                        <PermMediaIcon />
-                    </ListItemIcon>
-                    <ListItemText primary="Browse" secondary="Manage documents"/>
-                </ListItem>
-                <ListItem button key="chat">
-                    <ListItemIcon className={classes.icon}>
-                        <ChatIcon />
-                    </ListItemIcon>
-                    <ListItemText primary="Chat" secondary="Say hello"/>
-                </ListItem>
-            </React.Fragment>
-        )
-
-        return userContext ? loggedIn : loggedOut
-    }
-
-    /**
-     * Renders logged-in specific icons
-     */
-    const renderDrawerListLogout = () => {
-
-        const loggedOut = (
-            <React.Fragment>
-                <Divider />
-                <Fade in={open}>
-                    <Typography align="center" className={classes.loggedOutDrawerText}>
-                        <Button>Log in</Button> to do more
-                    </Typography>
-                </Fade>
-            </React.Fragment>
-        )
-        
-        const loggedIn = (
-            <React.Fragment>
-                <Divider />
-                <List>
-                    <ListItem button key="logout" onClick={handleLogoutClick}>
-                        <ListItemIcon className={classes.icon}>
-                            <ExitToAppIcon />
-                        </ListItemIcon>
-                        <ListItemText primary="Logout"/>
-                    </ListItem>
-                </List>
-            </React.Fragment>
-        )
-
-        return userContext ? loggedIn : loggedOut
-    }
-
-    /**
      * Informs the parent component that the close drawer button
      * was just clicked
      */
     const handleToggleButtonClick = () => {
         setOpen(!open)
     }
-
-    /**
-     * Triggers a redirect
-     * 
-     * @TODO Involve session ending etc
-     */
-    const handleLogoutClick = () => {
-        setRedirect({
-            do: true,
-            to: "/login"
-        })
-    }
-
-    if (redirect.do)
-        return <Redirect push to={redirect.to} />
     
     return (
         <Drawer
@@ -178,8 +143,28 @@ export default function AppDrawer(props) {
                     {open ? <ChevronLeftIcon className={classes.drawerToolbarIcon} /> : <MenuIcon className={classes.drawerToolbarIcon} />}
                 </IconButton>
             </div>
-            {renderDrawerList()}
-            {renderDrawerListLogout()}
+            {menuItems.map(menuItemGroup => (
+                <React.Fragment>
+                    {menuItemGroup.map(menuItem => {
+                        // prevent menu items from showing when they shouldn't
+                        if ((menuItem.show.loggedIn && !userContext) ||
+                            (menuItem.show.loggedOut && userContext))
+                            return false
+                        // render the menu item
+                        return (
+                            <ButtonBase component={NavLink} to={menuItem.path}>
+                                <ListItem key="upload">
+                                    <ListItemIcon className={classes.icon}>
+                                        {menuItem.icon}
+                                    </ListItemIcon>
+                                    <ListItemText primary={menuItem.text.primary} secondary={menuItem.text.secondary}/>
+                                </ListItem>
+                            </ButtonBase>
+                        )
+                    })}
+                    <Divider />
+                </React.Fragment>
+            ))}
         </Drawer>
     )
 }
