@@ -2,12 +2,13 @@
 
 // react
 import React from 'react'
-import { Route } from 'react-router-dom'
+import { Route, Siwtch } from 'react-router-dom'
 
 // material ui
-import { Typography, Paper } from '@material-ui/core'
+import { Typography, Paper, Switch } from '@material-ui/core'
 
 // application
+import MediaUpload from '../MediaUpload'
 import { UserContext } from '../../context/UserContext'
 import useStyles from '../../resource/styles/appAreaStyles'
 
@@ -58,9 +59,9 @@ export default function AppArea(props) {
         if (userContext) {
             components = (
                 <main className={classes.content}>
-                    <Route exact path="/upload" component={Typography} />
-                    <Route exact path="/browse" component={Typography} />
-                    <Route exact path="/chat" component={Typography} />
+                    <Route path="/upload" component={MediaUpload} />
+                    <Route path="/browse" component={Typography} />
+                    <Route path="/chat" component={Typography} />
                 </main>
             )
         }

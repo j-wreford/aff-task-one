@@ -24,8 +24,8 @@ export default function App() {
                 <CssBaseline />
                 <Router>
                     <Switch>
-                        <Route exact path="/" component={Layout} />
                         <Route exact path="/login" component={Login} />
+                        <Route path="/" component={Layout} />
                     </Switch> 
                 </Router>
             </Grid>

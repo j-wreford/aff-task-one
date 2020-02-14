@@ -17,7 +17,19 @@ export default makeStyles(theme => ({
     drawer: {
         width: drawerWidth,
         flexShrink: 0,
-        whiteSpace: 'nowrap'
+        whiteSpace: 'nowrap',
+        "&& a": {
+            transition: theme.transitions.create('background', {
+                easing: theme.transitions.easing.sharp,
+                duration: theme.transitions.duration.enteringScreen
+            })
+        },
+        "&& a.active" : {
+            background: "#ececec"
+        },
+        "&& hr:last-of-type" : {
+            display: "none"
+        }
     },
     drawerPaper: {
         boxShadow: "1px 0px 0px rgba(0, 0, 0, 0.12)",
@@ -26,9 +38,9 @@ export default makeStyles(theme => ({
     drawerOpen: {
         width: drawerWidth,
         transition: theme.transitions.create('width', {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.enteringScreen
-      })
+            easing: theme.transitions.easing.sharp,
+            duration: theme.transitions.duration.enteringScreen
+        })
     },
     drawerClose: {
         transition: theme.transitions.create('width', {
