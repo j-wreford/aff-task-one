@@ -64,6 +64,12 @@ export default function AppArea(props) {
                     <Route path="/chat" component={Typography} />
                 </main>
             )
+        } else {
+            components = (
+                <main className={classes.content}>
+                    <Route path="/browse" component={Typography} />
+                </main>
+            )
         }
 
         return components

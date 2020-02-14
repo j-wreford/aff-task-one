@@ -54,11 +54,11 @@ export default function AppDrawer(props) {
                 icon: <PermMediaIcon />,
                 text: {
                     primary: "Browse",
-                    secondary: "Manage documents"
+                    secondary: "View documents"
                 },
                 show: {
                     loggedIn: true,
-                    loggedOut: false
+                    loggedOut: true
                 }
             },
             {
@@ -147,9 +147,14 @@ export default function AppDrawer(props) {
                 <React.Fragment>
                     {menuItemGroup.map(menuItem => {
                         // prevent menu items from showing when they shouldn't
-                        if ((menuItem.show.loggedIn && !userContext) ||
-                            (menuItem.show.loggedOut && userContext))
-                            return false
+                        if (userContext) {
+                            if (!menuItem.show.loggedIn)
+                                return false
+                        }
+                        else {
+                            if (!menuItem.show.loggedOut)
+                                return false
+                        }
                         // render the menu item
                         return (
                             <ButtonBase component={NavLink} to={menuItem.path}>
