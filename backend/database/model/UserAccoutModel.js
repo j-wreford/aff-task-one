@@ -19,7 +19,7 @@ const userAccountSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    hashedPassword: {
+    password: {
         type: String,
         required: true
     },
@@ -29,5 +29,29 @@ const userAccountSchema = new mongoose.Schema({
         default: new Date()
     }
 }, { collection: "user" })
+
+/**
+ * Pre hook to hash a password before commiting the new user
+ * document to the collection
+ */
+userAccountSchema.pre("save", next => {
+
+    let user = this
+
+    bcrypt.hash(user.password, 10).then(
+            
+        // sucess
+        hash => {
+            user.password = hash;
+            next()
+        },
+
+        // failure
+        error => {
+            console.log(`Error in hashing password: ${error.message}`)
+            next(error)
+        }
+    )
+})
 
 module.exports = mongoose.model("UserAccount", userAccountSchema);
