@@ -6,6 +6,12 @@ const controllers = require('./controllers')
 const routeApi = (router) => {
 
     /**
+     * ENDPOINT /user
+     */
+    router.route('/user')
+        .post(constrollers.user.register)
+
+    /**
      * ENDPOINT /media
      */
     router.route('/media')

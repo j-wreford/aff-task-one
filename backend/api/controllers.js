@@ -5,5 +5,6 @@
  * containing all of the application's route controllers.
  */
 module.exports = {
+    user: require('./controller/user'),
     media: require('./controller/media')
 }
