@@ -19,6 +19,6 @@ const userAccountSchema = new mongoose.Schema({
         required: false,
         default: new Date()
     }
-}, "UserAccount")
+}, { collection: "UserAccount" })
 
 module.exports = mongoose.model("UserAccount", userAccountSchema);
