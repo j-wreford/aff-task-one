@@ -9,7 +9,7 @@ const routeApi = (router) => {
      * ENDPOINT /user
      */
     router.route('/user')
-        .post(constrollers.user.register)
+        .post(controllers.user.register)
 
     /**
      * ENDPOINT /media
