@@ -31,6 +31,14 @@ const userAccountSchema = new mongoose.Schema({
 }, { collection: "user" })
 
 /**
+ * Returns true when the given (unhashed) password matches
+ * the value a user document
+ */
+userAccountSchema.methods.testPassword = (password) => {
+    return bcrypt.compare(password, user.password)
+}
+
+/**
  * Pre hook to hash a password before commiting the new user
  * document to the collection
  */
