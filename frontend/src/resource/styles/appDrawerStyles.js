@@ -60,6 +60,7 @@ export default makeStyles(theme => ({
         flexGrow: 1,
     },
     toolbar: {
+        zIndex: 1,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'flex-end',
