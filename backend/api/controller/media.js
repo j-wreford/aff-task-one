@@ -30,20 +30,28 @@ const mediaController = {
 
         let reply = defaultResponse([])
             
-        models.Media.find((error, media) => {
+        models.Media.find().then(
+            
+            // success
+            (media) => {
 
-            if (error) {
-                reply.error = error
-                reply.message = "Something went wrong while trying to find your media"
-                response.status(500)
-            } else {
                 reply.data = media
                 reply.message = "Successfully found your media"
-                response.status(200)
-            }
 
-            response.json(reply)
-        })
+                response.status(200)
+                response.json(reply)
+            },
+
+            // failure
+            (error) => {
+
+                reply.error = error
+                reply.message = "Something went wrong while trying to find your media"
+                
+                response.status(500)
+                response.json(reply)
+            }
+        )
     },
 
     /**
@@ -59,9 +67,21 @@ const mediaController = {
         // try/catch block to prevent an uncaught type error
         try {
 
-            models.Media.findById(request.params.id, (error, media) => {
-                
-                if (error) {
+            models.Media.findById(request.params.id).then(
+
+                // success
+                (media) => {
+
+                    reply.data = media
+                    reply.message = "Successfully found this piece of media"
+
+                    response.status(200)
+                    response.json(reply)
+                },
+
+                // failure
+                (error) => {
+
                     reply.error = error
                     reply.message = "Something went wrong while trying to find this piece of media"
 
@@ -70,19 +90,14 @@ const mediaController = {
                     else
                         response.status(404)
 
-                } else {
-                    reply.data = media
-                    reply.message = "Successfully found this piece of media"
-                    response.status(200)
+                    response.json(reply)
                 }
-
-                response.json(reply)
-            })
-
+            )
         } catch(error) {
 
             reply.error = error
             reply.message = "Something went wrong while trying to figure out the id of this piece of media"
+
             response.status(500).json(reply)
         }
     },
@@ -100,22 +115,26 @@ const mediaController = {
 
             const media = new models.Media(request.body)
 
-            media.save()
-                .then((media) => {
+            media.save().then(
+
+                // success
+                (media) => {
 
                     reply.message = "Successfully uploaded your new piece of media"
                     reply.data = media
 
                     response.status(200).json(reply)
-                })
-                .catch((error) => {
+                },
+
+                // failure
+                (error) => {
 
                     reply.error = error
                     reply.message = "Something went wrong while trying to upload your new piece of media"
 
                     response.status(400).json(reply)
-                })
-
+                }
+            )
         } catch(error) {
 
             reply.error = error

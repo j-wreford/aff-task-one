@@ -24,7 +24,7 @@ const userController = {
     /**
      *  Saves a new user to the user collection.
      * 
-     * response.data is the user object of the just registered user.
+     * response.data is an empty object.
      */
     register: (request, response) => {
 
@@ -34,22 +34,26 @@ const userController = {
 
             const user = new models.UserAccount(request.body)
 
-            user.save()
-                .then((user) => {
+            user.save().then(
+
+                // success
+                (user) => {
 
                     reply.message = "Successfully created your account"
-                    reply.data = media
+                    reply.data = {}
 
                     response.status(200).json(reply)
-                })
-                .catch((user) => {
+                },
+
+                // failure
+                (error) => {
 
                     reply.error = error
                     reply.message = "Something went wrong while trying to create your account"
 
                     response.status(400).json(reply)
-                })
-
+                }
+            )
         } catch(error) {
 
             reply.error = error
