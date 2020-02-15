@@ -23,6 +23,6 @@ const mediaSchema = new mongoose.Schema({
         type: [String],
         required: false
     }
-}, { collection: "Media" })
+}, { collection: "media" })
 
 module.exports = mongoose.model("Media", mediaSchema);
