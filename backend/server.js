@@ -9,7 +9,6 @@ const session = require('express-session')      // express middleware to store s
 
 const routeApi = require('./api/api-router')    // routes request endpoints to api routines
 const dbConnect = require('./database/connect') // connects to mongodb using mongoose
-const dbModels = require('./database/models')   // each database model wrapped inside a single object
 
 /**
  * Object instantiations
@@ -29,9 +28,8 @@ const database = dbConnect(                     // mongoose database connection
 app.use(cors())
 app.use(express.json())
 app.use(bodyParser.json())
-app.use('/', router)
 app.use(session({
-    secret: "098q3x4m8c0923840",
+    secret: "hello",
     cookie: {
         maxAge: 4000000
     },
@@ -48,6 +46,7 @@ app.set("port", process.env.PORT || 5000)
  * API configuration
  */
 routeApi(router)
+app.use('/', router)
 
 /**
  * Database

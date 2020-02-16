@@ -37,10 +37,13 @@ const userController = {
             let user = await models.UserAccount.findOne({ userName: request.body.userName })
             let match = await user.testPassword(request.body.password)
 
-            if (match)
+            if (match) {
                 reply.message = "Authentication successful!"
-            else
+                request.session.user = user
+            }
+            else {
                 reply.message = "Authentication failed"
+            }
         }
         catch (error) {
 
@@ -52,7 +55,7 @@ const userController = {
     },
 
     /**
-     *  Saves a new user to the user collection.
+     * Saves a new user to the user collection.
      * 
      * response.data is a user object stripped of its password field.
      */
