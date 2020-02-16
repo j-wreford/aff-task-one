@@ -1,6 +1,7 @@
 "use strict";
 
-const mongoose = require("mongoose");
+const mongoose = require("mongoose")
+const bcrypt = require("bcrypt")
 
 /**
  * A user account
@@ -31,35 +32,44 @@ const userAccountSchema = new mongoose.Schema({
 }, { collection: "user" })
 
 /**
- * Returns true when the given (unhashed) password matches
- * the value a user document
+ * Compares the given (unhashed) password to the current one stored
+ * within the database.
  */
-userAccountSchema.methods.testPassword = (password) => {
-    return bcrypt.compare(password, user.password)
+userAccountSchema.methods.testPassword = async function(password) {
+    
+    let match = false
+    
+    try {
+        
+        match = await bcrypt.compare(password, this.password, false) 
+    }
+    catch (error) {
+
+        console.log(error)
+    }
+    
+    return match
 }
 
 /**
  * Pre hook to hash a password before commiting the new user
  * document to the collection
  */
-userAccountSchema.pre("save", next => {
+userAccountSchema.pre("save", function(next) {
 
     let user = this
 
-    bcrypt.hash(user.password, 10).then(
-            
-        // sucess
-        hash => {
-            user.password = hash;
-            next()
-        },
+    bcrypt.hash(user.password, 10, (error, hash) => {
 
-        // failure
-        error => {
+        if (error) {
             console.log(`Error in hashing password: ${error.message}`)
             next(error)
         }
-    )
+        else {
+            user.password = hash
+            next()
+        }
+    })
 })
 
 module.exports = mongoose.model("UserAccount", userAccountSchema);

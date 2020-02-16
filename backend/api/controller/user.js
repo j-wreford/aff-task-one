@@ -22,6 +22,36 @@ const defaultResponse = (defaultData) => {
 const userController = {
 
     /**
+     * Attempts to authenticate a user with the given account
+     * information.
+     * 
+     * If authentication passes, then the session is updated with
+     * authenticated user object.
+     */
+    auth: async (request, response) => {
+
+        let reply = defaultResponse({})
+
+        try {
+
+            let user = await models.UserAccount.findOne({ userName: request.body.userName })
+            let match = await user.testPassword(request.body.password)
+
+            if (match)
+                reply.message = "Authentication successful!"
+            else
+                reply.message = "Authentication failed"
+        }
+        catch (error) {
+
+            reply.error = error
+            reply.message = "We couldn't log you in. Please make sure your username and password is correct"
+        }
+        
+        response.json(reply)
+    },
+
+    /**
      *  Saves a new user to the user collection.
      * 
      * response.data is an empty object.
@@ -37,7 +67,7 @@ const userController = {
             user.save().then(
 
                 // success
-                (user) => {
+                user => {
 
                     reply.message = "Successfully created your account"
                     reply.data = {}
@@ -46,7 +76,7 @@ const userController = {
                 },
 
                 // failure
-                (error) => {
+                error => {
 
                     reply.error = error
                     reply.message = "Something went wrong while trying to create your account"
