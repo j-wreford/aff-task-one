@@ -12,10 +12,17 @@ const routeApi = (router) => {
         .post(controllers.user.register)
 
     /**
-     * ENDPOINT /user/register
+     * ENDPOINT /user/auth
      */
     router.route('/user/auth')
         .post(controllers.user.auth)
+        .get(controllers.user.validate)
+
+    /**
+     * ENDPOINT /user/logout
+     */
+    router.route('/user/logout')
+        .post(controllers.user.logout)
 
     /**
      * ENDPOINT /media
