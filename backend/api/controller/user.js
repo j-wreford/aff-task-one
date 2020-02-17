@@ -18,6 +18,28 @@ const defaultResponse = (defaultData) => {
 }
 
 /**
+ * Creates a response object containing error information about each field
+ * inside a post request
+ */
+const createPostRequestResponse = fields => {
+
+    let obj = {
+        message: "",
+        fields: {}
+    }
+
+    fields.map((field, index) => {
+
+        obj.fields[field] = {
+            valid: true,
+            hint: ""
+        }
+    })
+
+    return obj
+}
+
+/**
  * Exposes methods to authenticate and register users
  */
 const userController = {
@@ -27,32 +49,58 @@ const userController = {
      * information.
      * 
      * If authentication is successful, then the session is updated with
-     * authenticated user object and the session id is returned
+     * authenticated user object and the session id is returned.
+     * 
+     * Required data:
+     *  - username: the username of the account to authenticate
+     *  - password: the password to unlock the account with the given username
      */
     auth: async (request, response) => {   
 
-        let reply = defaultResponse({})
+        let reply = createPostRequestResponse(["username", "password"])
 
+        // attempt to authenticate with the supplied parameters
         try {
 
             let user = await models.UserAccount.findOne({ username: request.body.username })
-            let match = await user.testPassword(request.body.password)
 
-            if (match) {
+            // if user was null, then the user didn't provide a username that exists
+            // within the database. send a reply and bail
+            if (!user && request.body.username) {
 
-                reply.message = "Authentication successful!"
-                reply.data = {
-                    sid: request.sessionID
-                }
-                request.session.user = user
-
-                response.status(statusCodes.OK)
-            }
-            else {
-
-                reply.message = "Authentication failed"
+                reply.fields.username.valid = false
+                reply.fields.username.hint = `No account found with username ${request.body.username}`
+                reply.message = "We couldn't log you in using the given details"
 
                 response.status(statusCodes.BAD_REQUEST)
+            }
+        
+            let match = await user.testPassword(request.body.password)
+
+            // if match isn't true, then the user didn't provide the correct password
+            // for the account with the given username
+            if (!match && request.body.password) {
+
+                reply.fields.password.valid = false
+                reply.fields.password.hint = `Incorrect password`
+                reply.message = "We couldn't log you in using the given details"
+
+                response.status(statusCodes.BAD_REQUEST)
+            }
+
+            // if user and match are truthy, then we have a successful login
+            if (user && match) {
+
+                reply.message = "Successfully logged in"
+
+                response.status(statusCodes.OK)
+
+                request.session.user = user
+            }
+            // else the request was malformed
+            else {
+
+                throw Error("Invalid login request")
             }
 
             response.json(reply)
@@ -60,11 +108,26 @@ const userController = {
         catch (error) {
 
             console.log("AUTH ERROR:", error);
-            
-            reply.error = error
-            reply.message = "We couldn't log you in. Please make sure your username and password is correct"
 
-            response.status(statusCodes.INTERNAL_SERVER_ERROR)
+            // handle no given username
+            if (!request.body.username) {
+
+                reply.fields.username.valid = false
+                reply.fields.username.hint = "Username is a required field"
+                reply.message = "Please fill out all required fields before submitting"
+            }
+
+            // handle no given password
+            if (!request.body.password) {
+
+                reply.fields.password.valid = false
+                reply.fields.password.hint = "Password is a required field"
+                reply.message = "Please fill out all required fields before submitting"
+            }
+
+            if (!request.body.username || !request.body.password)
+                response.status(statusCodes.BAD_REQUEST)
+            
             response.json(reply)
         }
     },
