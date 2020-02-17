@@ -89,20 +89,20 @@ const userController = {
             if (delete saved.password)
                 reply.data = saved
 
-            response.status(200)
+            response.status(statusCodes.OK)
         }
         catch (error) {
 
             reply.error = error
             reply.message = "Something went wrong when trying to create your account"
-            response.status(500)
+            response.status(statusCodes.INTERNAL_SERVER_ERROR)
 
             if (error && error.code) {
 
                 // E11000 duplicate key error collection
                 if (error.code === 11000) {
                     reply.message = `An account already exists with the username ${request.body.username}`
-                    response.status(200)
+                    response.status(statusCodes.OK)
                 }
             }
         }
