@@ -1,5 +1,6 @@
 "use strict"
 
+const statusCodes = require('http-status-codes')
 const models = require('../../database/models')
 
 /**
@@ -26,32 +27,28 @@ const mediaController = {
      * 
      * response.data is an array of the media collection.
      */
-    getAll: (request, response) => {
+    getAll: async (request, response) => {
 
         let reply = defaultResponse([])
+
+        try {
+
+            let media = await models.Media.find()
+
+            reply.data = media
+            reply.message = "Successfully found your media"
+
+            response.status(statusCodes.OK)
+            response.json(reply)
+        }
+        catch (error) {
+
+            reply.error = error
+            reply.message = "Something went wrong while trying to find your media"
             
-        models.Media.find().then(
-            
-            // success
-            (media) => {
-
-                reply.data = media
-                reply.message = "Successfully found your media"
-
-                response.status(200)
-                response.json(reply)
-            },
-
-            // failure
-            (error) => {
-
-                reply.error = error
-                reply.message = "Something went wrong while trying to find your media"
-                
-                response.status(500)
-                response.json(reply)
-            }
-        )
+            response.status(statusCodes.INTERNAL_SERVER_ERROR)
+            response.json(reply)
+        }
     },
 
     /**
@@ -59,46 +56,31 @@ const mediaController = {
      * 
      * response.data is the document object of the piece of media requested.
      */
-    findOne: (request, response) => {
+    findOne: async (request, response) => {
 
         let reply = defaultResponse({})
 
-        // on the off chance request.params is undefined, wrap this database request inside a
-        // try/catch block to prevent an uncaught type error
         try {
 
-            models.Media.findById(request.params.id).then(
+            let media = await models.Media.findById(request.params.id)
 
-                // success
-                (media) => {
+            reply.data = media
+            reply.message = "Successfully found this piece of media"
 
-                    reply.data = media
-                    reply.message = "Successfully found this piece of media"
-
-                    response.status(200)
-                    response.json(reply)
-                },
-
-                // failure
-                (error) => {
-
-                    reply.error = error
-                    reply.message = "Something went wrong while trying to find this piece of media"
-
-                    if (error.name == "CastError")
-                        response.status(400)
-                    else
-                        response.status(404)
-
-                    response.json(reply)
-                }
-            )
-        } catch(error) {
+            response.status(statusCodes.OK)
+            response.json(reply)
+        }
+        catch (error) {
 
             reply.error = error
-            reply.message = "Something went wrong while trying to figure out the id of this piece of media"
+            reply.message = "Something went wrong while trying to find this piece of media"
 
-            response.status(500).json(reply)
+            if (error.name == "CastError")
+                response.status(statusCodes.BAD_REQUEST)
+            else
+                response.status(statusCodes.NOT_FOUND)
+
+            response.json(reply)
         }
     },
 
@@ -107,7 +89,7 @@ const mediaController = {
      * 
      * response.data is the document object of the just uploaded piece of media.
      */
-    upload: (request, response) => {
+    upload: async (request, response) => {
 
         let reply = defaultResponse({})
 
@@ -115,32 +97,21 @@ const mediaController = {
 
             const media = new models.Media(request.body)
 
-            media.save().then(
+            let upload = await media.save()
 
-                // success
-                (media) => {
+            reply.message = "Successfully uploaded your new piece of media"
+            reply.data = upload
 
-                    reply.message = "Successfully uploaded your new piece of media"
-                    reply.data = media
-
-                    response.status(200).json(reply)
-                },
-
-                // failure
-                (error) => {
-
-                    reply.error = error
-                    reply.message = "Something went wrong while trying to upload your new piece of media"
-
-                    response.status(400).json(reply)
-                }
-            )
-        } catch(error) {
+            response.status(200).json(reply)
+        }
+        catch (error) {
 
             reply.error = error
-            reply.message = "Something went wrong while trying to create your new piece of media"
+            reply.message = "Something went wrong while trying to upload your new piece of media"
 
-            response.status(500).json(reply)
+            response.status(statusCodes.BAD_REQUEST)
+
+            response.json(reply)
         }
     }
 }
