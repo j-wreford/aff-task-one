@@ -52,7 +52,7 @@ const userController = {
 
                 reply.message = "Authentication failed"
 
-                response.status(statusCodes.UNAUTHORIZED)
+                response.status(statusCodes.BAD_REQUEST)
             }
 
             response.json(reply)
@@ -67,6 +67,55 @@ const userController = {
             response.status(statusCodes.INTERNAL_SERVER_ERROR)
             response.json(reply)
         }
+    },
+
+    /**
+     * Valides a client session by providing the user object for that session.
+     * 
+     * If a successful call to auth hasn't taken place during this session,
+     * then an empty object is returned.
+     */
+    validate: async (request, response) => {
+
+        let reply = {
+            message: "",
+            user: false
+        }
+
+        if (request.session && request.session.user) {
+
+            reply.message = "Client is logged in"
+            reply.user = request.session.user
+        }
+        else {
+
+            reply.message = "Client is logged out"
+        }
+
+        response.json(reply)
+    },
+
+    /**
+     * Destroys the session, if one exists with the user object, and explicitly clears
+     * the session id cookie
+     */
+    logout: async (request, response) => {
+
+        let reply = defaultResponse()
+        
+        if (request.session && request.session.user) {
+
+            request.session.destroy()
+            response.clearCookie("connect.sid")
+
+            reply.message = "Successfully logged out"
+        }
+        else {
+
+            reply.message = "Logout failed - no user was logged in"
+        }
+
+        response.json(reply)
     },
 
     /**
