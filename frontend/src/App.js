@@ -6,11 +6,15 @@ import {BrowserRouter as Router, Route, Switch} from 'react-router-dom'
 import { ThemeProvider } from '@material-ui/styles'
 import {Grid, CssBaseline} from '@material-ui/core'
 
+// cookies
+import { CookiesProvider } from 'react-cookie'
+
 // application
 import Login from './component/Login'
 import Layout from './component/Layout'
 import Styles from './resource/App.css'
 import theme from './resource/theme'
+import UserContextProvider from './context/UserContext'
 
 
 /**
@@ -20,15 +24,19 @@ export default function App() {
 
     return (
         <ThemeProvider theme={theme}>
-            <Grid id="App">
-                <CssBaseline />
-                <Router>
-                    <Switch>
-                        <Route exact path="/login" component={Login} />
-                        <Route path="/" component={Layout} />
-                    </Switch> 
-                </Router>
-            </Grid>
+            <UserContextProvider>
+                <CookiesProvider>
+                    <Grid id="App">
+                        <CssBaseline />
+                        <Router>
+                            <Switch>
+                                <Route exact path="/login" component={Login} />
+                                <Route path="/" component={Layout} />
+                            </Switch> 
+                        </Router>
+                    </Grid>
+                </CookiesProvider>
+            </UserContextProvider>
         </ThemeProvider>
     )
 }
