@@ -1,5 +1,6 @@
 "use strict"
 
+const statusCodes = require('http-status-codes')
 const models = require('../../database/models')
 
 /**
@@ -25,33 +26,47 @@ const userController = {
      * Attempts to authenticate a user with the given account
      * information.
      * 
-     * If authentication passes, then the session is updated with
-     * authenticated user object.
+     * If authentication is successful, then the session is updated with
+     * authenticated user object and the session id is returned
      */
-    auth: async (request, response) => {
+    auth: async (request, response) => {   
 
         let reply = defaultResponse({})
 
         try {
 
-            let user = await models.UserAccount.findOne({ userName: request.body.userName })
+            let user = await models.UserAccount.findOne({ username: request.body.username })
             let match = await user.testPassword(request.body.password)
 
             if (match) {
+
                 reply.message = "Authentication successful!"
+                reply.data = {
+                    sid: request.sessionID
+                }
                 request.session.user = user
+
+                response.status(statusCodes.OK)
             }
             else {
+
                 reply.message = "Authentication failed"
+
+                response.status(statusCodes.UNAUTHORIZED)
             }
+
+            response.json(reply)
         }
         catch (error) {
 
+            console.log("AUTH ERROR:", error);
+            
             reply.error = error
             reply.message = "We couldn't log you in. Please make sure your username and password is correct"
-        }
 
-        response.json(reply)
+            response.status(statusCodes.INTERNAL_SERVER_ERROR)
+            response.json(reply)
+        }
     },
 
     /**
@@ -86,7 +101,7 @@ const userController = {
 
                 // E11000 duplicate key error collection
                 if (error.code === 11000) {
-                    reply.message = `An account already exists with the username ${request.body.userName}`
+                    reply.message = `An account already exists with the username ${request.body.username}`
                     response.status(200)
                 }
             }
