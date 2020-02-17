@@ -32,7 +32,8 @@ app.use(cookieParser())
 app.use(session({
     secret: "hello",
     cookie: {
-        maxAge: 4000000
+        maxAge: 4000000,
+        httpOnly: false
     },
     resave: false,
     saveUninitialized: false
