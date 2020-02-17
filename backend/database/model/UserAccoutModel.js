@@ -7,16 +7,16 @@ const bcrypt = require("bcrypt")
  * A user account
  */
 const userAccountSchema = new mongoose.Schema({
-    userName: {
+    username: {
         type: String,
         required: true,
         unique: true
     },
-    firstName: {
+    fname: {
         type: String,
         required: true,
     },
-    lastName: {
+    lname: {
         type: String,
         required: true,
     },
