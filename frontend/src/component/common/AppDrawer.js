@@ -189,9 +189,16 @@ export default function AppDrawer(props) {
                         }
                         // render the menu item
                         return (
-                            <ButtonBase component={menuItem.type === "link" ? NavLink : Button} onClick={menuItem.onClick} to={menuItem.path}>
+                            <ButtonBase
+                                component={menuItem.type === "link" ? NavLink : Button}
+                                onClick={menuItem.onClick}
+                                to={menuItem.path}
+                            >
                                 <ListItem key="upload">
-                                    <ListItemIcon className={classes.icon}>
+                                    <ListItemIcon className={clsx({
+                                        [classes.buttonIcon]: menuItem.type === "button",
+                                        [classes.linkIcon]: menuItem.type === "link"
+                                    })}>
                                         {menuItem.icon}
                                     </ListItemIcon>
                                     <ListItemText primary={menuItem.text.primary} secondary={menuItem.text.secondary}/>
