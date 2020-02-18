@@ -16,7 +16,7 @@ import statusCodes from 'http-status-codes'
 import SubtleButton from './hoc/SubtleButton'
 import { UserContext } from '../context/UserContext'
 import useStyles from '../resource/styles/loginStyles'
-import useApi, { endpoints as apiEndpoints } from '../api-client/apiClient'
+import useApi, { endpoints as apiEndpoints } from '../effects/apiClient'
 
 /**
  * Presents an interface for users to authenticate themselves and log
