@@ -43,6 +43,19 @@ module.exports =  {
     },
 
     /**
+     * Creates a default delete request response object that
+     * describes the success of the operation and a message to go
+     * with it
+     */
+    createDeleteResponse: () => {
+
+        return {
+            success: false,
+            message: ""
+        }
+    },
+
+    /**
      * Creates a response object to be sent when the client is attempting
      * to call an endpoint which requires authentication
      */
