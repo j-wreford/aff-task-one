@@ -7,8 +7,8 @@
 module.exports =  {
 
     /**
-     * Creates a default post request response object that has
-     * valid and hit properties for each given field property
+     * Creates a default post request response object that has valid and hit properties
+     * for each given field property
      */
     createPostResponse: fields => {
 
@@ -29,8 +29,8 @@ module.exports =  {
     },
 
     /**
-     * Creates a default get request response object that
-     * has a default data property of the given defaultDataType
+     * Creates a default get request response object that has a default data property
+     * of the given defaultDataType
      */
     createGetResponse: (dataProp, defaultDataType) => {
 
@@ -43,11 +43,22 @@ module.exports =  {
     },
 
     /**
-     * Creates a default delete request response object that
-     * describes the success of the operation and a message to go
-     * with it
+     * Creates a default delete request response object that describes the success of
+     * the operation and a message to go with it
      */
     createDeleteResponse: () => {
+
+        return {
+            success: false,
+            message: ""
+        }
+    },
+
+    /**
+     * Creates a default update request response object that describes the success of
+     * the operation and a message to go with it
+     */
+    createUpdateResponse: () => {
 
         return {
             success: false,
