@@ -2,7 +2,7 @@
 import React from 'react'
 
 // material ui
-import { Card, CardHeader, CardContent, CardActions, Button, IconButton, Typography } from '@material-ui/core'
+import { Box, Grid, Card, Chip, CardHeader, CardContent, CardActions, Button, IconButton, Typography, Divider, CardActionArea } from '@material-ui/core'
 
 // http status codes
 import statusCodes from 'http-status-codes'
@@ -12,6 +12,15 @@ import PaddedPaper from '../component/hoc/PaddedPaper'
 import useStyles from '../resource/styles/mediaBrowserStyles'
 import useApi, { endpoints as apiEndpoints } from '../effects/apiClient'
 import { UserContext } from '../context/UserContext'
+
+/**
+ * Table header configuartion
+ */
+const tableHeadCells = [
+    { id: "name", numeric: false, disablePadding: false, label: "Document Title" },
+    { id: "author", numeric: false, disablePadding: false, label: "Uploaded By" },
+    { id: "date", numeric: false, disablePadding: false, label: "Upload Date" }
+]
 
 /**
  * Presents an interface to browse all media documents that have been added
@@ -66,25 +75,38 @@ export default function MediaBrowser(props) {
 
     return (
         <React.Fragment>
-            {media.map(item => {
-                console.log(item)
-                return (
-                    <Card>
-                        <CardHeader
-                            title={item.title}
-                            subheader={"Uploaded by " + " " + item.author.fname + " " + item.author.lname}
-                        />
-                        <CardContent>
-                            <Typography variant="body2" color="textSecondary" component="p">
-                                Card content text
-                            </Typography>
-                        </CardContent>
-                        <CardActions>
-                            <Button type="primary" variant="outlined">View</Button>
-                        </CardActions>
-                    </Card>
-                )
-            })}
+            <Grid container spacing={3}>
+                <Grid item xs={12}>
+                    <Typography variant="h5" gutterBottom>{user ? "Manage your documents" : "Browse public documents"}</Typography>
+                </Grid>
+            </Grid>
+            <Grid container spacing={3}>
+                {media.map(item => {
+                    return (
+                        <Grid item xs={6}>
+                            <Card>
+                                <CardHeader
+                                    className={classes.cardHeader}
+                                    title={item.title}
+                                    subheader={"Uploaded by " + " " + item.author.fname + " " + item.author.lname}
+                                    titleTypographyProps={{variant: "subtitle2"}}
+                                    subheaderTypographyProps={{variant: "subtitle1", className: classes.cardSubheader}}
+                                />
+                                <CardContent className={classes.cardContent}>
+                                    {item.tags.map(tag => {
+                                        return <Chip size="small" variant="outlined" label={tag} />
+                                    })}
+                                </CardContent>
+                                <Divider />
+                                <CardActions className={classes.cardActions}>
+                                    <Button size="small" color="primary" variant="contained" disableElevation href={item.uri}>Open document link</Button>
+                                    <Button size="small" color="secondary" variant="outlined">View</Button>
+                                </CardActions>
+                            </Card>
+                        </Grid>
+                    )
+                })}
+            </Grid>
         </React.Fragment>
     )
 }
