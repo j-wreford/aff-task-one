@@ -74,38 +74,103 @@ const mediaController = {
     /**
      * Upload a single piece of media.
      * 
-     * response.data is the document object of the just uploaded piece of media.
+     * If the client has been authenticated, then the media document is added to the media
+     * collection.
+     * 
+     * Required data:
+     *  - title: the title of the piece of media
+     *  - uri: a link to the piece of media itself
+     *  - tags: an array of strings representing tags to attribute to the piece of media
+     * 
+     * The newly uploaded piece of media is returned on the reply object with key upload.
      */
     upload: async (request, response) => {
-
-        let reply = responseFactory.createGetResponse("upload", {})
 
         // bail if the client hasn't logged in during their session
         if (!request.session.user) {
 
-            reply.message = "Refused to upload (client not authorised)"
+            response
+                .status(statusCodes.UNAUTHORIZED)
+                .json(responseFactory.createUnauthorizedResponse("Refused to upload"))
 
-            response.status(statusCodes.UNAUTHORIZED)
-            response.json(reply)
+            return
         }
+
+        let reply = responseFactory.createPostResponse(["title", "uri", "tags"])
 
         try {
 
-            const media = new models.Media(request.body)
+            const fields = {
+                title: request.body.title,
+                author: request.session.user._id,
+                uri: request.body.uri,
+                tags: request.body.tags
+            }
 
+            const media = new models.Media(fields)
             let upload = await media.save()
 
+            // the upload was successful
             reply.message = "Successfully uploaded your new piece of media"
             reply.upload = upload
 
-            response.status(200).json(reply)
+            response.status(statusCodes.OK).json(reply)
         }
         catch (error) {
 
-            //reply.error = error
-            reply.message = "Something went wrong while trying to upload your new piece of media"
+            console.log("UPLOAD ERROR: ", error)
 
-            response.status(statusCodes.BAD_REQUEST)
+            // handle missing or incorrect field values
+            if (error.name && error.name === "ValidationError" && error.errors) {
+
+                let errors = error.errors;
+
+                // handle title validation messages
+                if (errors.title) {
+
+                    reply.fields.title.valid = false
+
+                    if (errors.title.kind === "required")
+                        reply.fields.title.hint = "Title is a required field"
+
+                    reply.message = "We couldn't upload your piece of media. Please make sure you fill out all fields."
+
+                    response.status(statusCodes.BAD_REQUEST)
+                }
+            
+                // handle uri validation messages
+                if (errors.uri) {
+
+                    reply.fields.uri.valid = false
+
+                    if (errors.uri.kind === "required")
+                        reply.fields.uri.hint = "Link is a required field"
+
+                    reply.message = "We couldn't upload your piece of media. Please make sure you fill out all fields."
+
+                    response.status(statusCodes.BAD_REQUEST)
+                }
+
+                // handle tag validation messages
+                if (errors.tags) {
+
+                    reply.fields.tags.valid = false
+
+                    if (errors.tags.kind === "Array" &&
+                        errors.tags.name === "CastError")
+                        reply.fields.tags.hint = "Incorrect data type. Should be an array of strings only"
+
+                    reply.message = "We couldn't upload your piece of media. Please make sure you fill out all fields."
+
+                    response.status(statusCodes.BAD_REQUEST)
+                }
+            }
+            else {
+
+                reply.message = "Something unexpected happened while trying to upload your piece of media"
+
+                response.status(statusCodes.INTERNAL_SERVER_ERROR)
+            }
 
             response.json(reply)
         }
