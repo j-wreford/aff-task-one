@@ -13,6 +13,9 @@ const mediaController = {
     /**
      * Get all media.
      * 
+     * If this session hasn't been authenticated, then only public documents
+     * are returned.
+     * 
      * response.data is an array of the media collection.
      */
     getAll: async (request, response) => {
@@ -21,7 +24,14 @@ const mediaController = {
 
         try {
 
-            let media = await models.Media.find()
+            let opts = {
+                isPublic: true
+            }
+
+            if (request.session.user)
+                delete opts.isPublic
+
+            let media = await models.Media.find(opts)
 
             reply.media = media
             reply.message = "Successfully found your media"
