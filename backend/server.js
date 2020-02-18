@@ -40,7 +40,11 @@ app.use(session({
 }))
 app.use(cors({
     credentials: true,
-    origin: "http://127.0.0.1:3000"
+    origin: function(origin, callback) {
+        // while this allows any origin to accept the returned Set-Cookie
+        // header, it still does not prevent localhost from working as expected
+        callback(null, true)
+    }
 }))
 
 /**
@@ -59,9 +63,10 @@ app.use((request, response, next) => {
 /**
  * Custom middleware.
  * 
- * Logs the user for this session.
+ * Logs the request domain.
  */
 app.use((request, response, next) => {
+    //console.log(request)
     //console.log(request.session.user)
     next()
 })
