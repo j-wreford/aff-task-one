@@ -92,7 +92,16 @@ const userController = {
             if (user && match) {
 
                 reply.message = "Successfully logged in"
-                reply.user = request.session.user
+
+                let sanitised = {
+                    id: user._id,
+                    username: user.username,
+                    fname: user.fname,
+                    lname: user.lname,
+                    creationDate: user.creationDate
+                }
+
+                reply.user = sanitised
 
                 response.status(statusCodes.OK)
 
