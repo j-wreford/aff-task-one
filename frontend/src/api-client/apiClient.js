@@ -23,7 +23,13 @@ export const endpoints = {
 /**
  * Exposes a react effect hook to call various api endpoints with ease,
  * and have calling components update their state accordingly regardless
- * of the fact that this is an asynchronous operation
+ * of the fact that this is an asynchronous operation.
+ * 
+ * Three references are returned when calling this effect. They are:
+ *  1) The function to call to trigger the api call
+ *  2) A boolean value indicating the progress of the api call
+ *  3) The response from the api server. This value can either be a response
+ *     object, or -1 (indicating a pre flight-error)
  */
 export default (method, endpoint) => {
 
@@ -76,9 +82,14 @@ export default (method, endpoint) => {
             setTriggered(false)
         }
         catch (error) {
-            
-            // TODO handle error.isAxiosError cases
-            setResponse(error.response)
+
+            // indicates a pre-flight error - with respect to the assignment, this
+            // most likely means that the browser's URI is localhost and not 127.0.0.1
+            if (!error.response)
+                setResponse(-1)
+            else
+                setResponse(error.response)
+
             setInProgress(false)
             setTriggered(false)
         }
