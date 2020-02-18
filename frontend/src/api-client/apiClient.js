@@ -46,7 +46,7 @@ export default (method, endpoint) => {
     /**
      * Set to true once the http request is replied to
      */
-    const [inProgress, setInProgress] = React.useState(true)
+    const [inProgress, setInProgress] = React.useState(false)
 
     /**
      * Triggers the effect to make a request
@@ -58,6 +58,7 @@ export default (method, endpoint) => {
      */
     const trigger = (data) => {
         setPostData(data)
+        setInProgress(true)
         setTriggered(true)
     }
 
