@@ -116,6 +116,7 @@ const mediaController = {
                 authorId: request.session.user._id,
                 uri: request.body.uri,
                 tags: request.body.tags,
+                description: request.body.description,
                 isPublic: request.body.isPublic
             }
 
