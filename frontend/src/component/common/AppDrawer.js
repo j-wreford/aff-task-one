@@ -97,7 +97,7 @@ export default function AppDrawer(props) {
                 icon: <PermMediaIcon />,
                 text: {
                     primary: "Browse",
-                    secondary: "View documents"
+                    secondary: user ? "Manage documents" : "View documents"
                 },
                 show: {
                     loggedIn: true,
