@@ -16,7 +16,7 @@ import statusCodes from 'http-status-codes'
 import SubtleButton from './hoc/SubtleButton'
 import { UserContext } from '../context/UserContext'
 import useStyles from '../resource/styles/loginStyles'
-import useApi from '../api-client/apiClient'
+import useApi, { endpoints as apiEndpoints } from '../api-client/apiClient'
 
 /**
  * Presents an interface for users to authenticate themselves and log
@@ -50,7 +50,7 @@ export default function Login(props) {
     const [password, setPassword] = React.useState("")
 
     /**
-     * Used to altar the password text input type
+     * Used to alter the password text input type
      */
     const [showPassword, setshowPassword] = React.useState(false)
 
@@ -72,7 +72,7 @@ export default function Login(props) {
     /**
      * Describes variables used when contacting the api to login
      */
-    const [triggerLogin, loginInProgress, loginResponse] = useApi("post", "user/auth")
+    const [triggerLogin, loginInProgress, loginResponse] = useApi("post", apiEndpoints.USER_AUTH)
 
     /**
      * Redirects the user to the root path if they're already logged in
@@ -261,7 +261,7 @@ export default function Login(props) {
                                 onClick={handleOnFormSubmit}
                                 variant="contained"
                                 color="primary"
-                                disabled={validation.prompt.length > 0 ? false : false}
+                                disabled={loginInProgress}
                                 disableElevation={true}
                             >
                                 Login
