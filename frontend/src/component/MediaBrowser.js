@@ -1,8 +1,9 @@
 // react
 import React from 'react'
+import { useHistory } from 'react-router-dom'
 
 // material ui
-import { Box, Grid, Card, Chip, CardHeader, CardContent, CardActions, Button, IconButton, Typography, Divider, CardActionArea } from '@material-ui/core'
+import { Box, Grid, Card, Chip, CardHeader, CardContent, CardActions, Button, ButtonBase, IconButton, Typography, Divider, CardActionArea } from '@material-ui/core'
 
 // http status codes
 import statusCodes from 'http-status-codes'
@@ -32,6 +33,11 @@ export default function MediaBrowser(props) {
      * Component classes
      */
     const classes = useStyles()
+
+    /**
+     * Used to redirect to /media/:id
+     */
+    const history = useHistory()
 
     /**
      * Describes variables used when contacting the api to fetch media
@@ -73,6 +79,13 @@ export default function MediaBrowser(props) {
 
     }, [getMediaResponse])
 
+    /**
+     * Directs the browser to /media/:id
+     */
+    const handleViewOnClick = media => event => {
+        history.push("/media/" + media._id)
+    }
+
     return (
         <React.Fragment>
             <Grid container spacing={3}>
@@ -100,7 +113,7 @@ export default function MediaBrowser(props) {
                                 <Divider />
                                 <CardActions className={classes.cardActions}>
                                     <Button size="small" color="primary" variant="contained" disableElevation href={item.uri}>Open document link</Button>
-                                    <Button size="small" color="secondary" variant="outlined">View</Button>
+                                    <Button size="small" color="secondary" variant="outlined" onClick={handleViewOnClick(item)}>View</Button>
                                 </CardActions>
                             </Card>
                         </Grid>
