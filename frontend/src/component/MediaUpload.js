@@ -2,7 +2,7 @@
 import React from 'react'
 
 // material ui
-import { Grid, Box, Divider, Typography, FormControl, InputLabel, FormHelperText, OutlinedInput, Chip, Button } from '@material-ui/core'
+import { Grid, Box, Divider, Typography, FormControl, FormControlLabel, InputLabel, FormHelperText, OutlinedInput, Chip, Button, Switch } from '@material-ui/core'
 
 // http status codes
 import statusCodes from 'http-status-codes'
@@ -29,12 +29,12 @@ export default function MediaUpload(props) {
     /**
      * Describes variables used when contacting the api to upload
      */
-    const [triggerUpload, uploadInProgress, uploadResponse] = useApi("post", apiEndpoints.MEDIA_UPLOAD)
+    const [triggerUpload, uploadInProgress, uploadResponse] = useApi("post", apiEndpoints.MEDIA)
 
     /**
      * Presents methods to validate the form
      */
-    const [validation, setFieldValidation] = useFormPostValidation(["title", "uri", "tags"])
+    const [validation, setFieldValidation] = useFormPostValidation(["title", "uri", "tags", "public"])
 
     /**
      * Prompts the user about how to fix any errors in the form
@@ -64,6 +64,11 @@ export default function MediaUpload(props) {
         { key: 1, value: "Test tag 2"},
         { key: 2, value: "Test tag 3"}
     ])
+
+    /**
+     * Form field: Media publicity
+     */
+    const [isPublic, setIsPublic] = React.useState(false)
 
     /**
      * Updates title state
@@ -114,6 +119,13 @@ export default function MediaUpload(props) {
     }
 
     /**
+     * Toggles isPublic state
+     */
+    const handleOnPublicSwitchChange = event => {
+        setIsPublic(!isPublic)
+    }
+
+    /**
      * Sends a request to the api server 
      */
     const handleOnFormSubmit = event => {
@@ -121,7 +133,8 @@ export default function MediaUpload(props) {
         triggerUpload({
             title: title,
             uri: uri,
-            tags: tags.map(tag => tag.value)
+            tags: tags.map(tag => tag.value),
+            isPublic: isPublic
         })
     }
 
@@ -162,6 +175,7 @@ export default function MediaUpload(props) {
             <Grid item xs={12}>
                 <PaddedPaper>
                     <form onSubmit={handleOnFormSubmit}>
+
                         <Typography variant="subtitle2">Enter the title for the piece of media you're uploading.</Typography>
                         <Typography variant="p">This is what will be displayed at the top of the page when viewing this item.</Typography>
                         <FormControl fullWidth={true} error={validation.title.error} variant="outlined" margin="normal">
@@ -176,7 +190,9 @@ export default function MediaUpload(props) {
                             />
                             <FormHelperText id="title-helper">{validation.title.helperText}</FormHelperText>
                         </FormControl>
+
                         <Divider className={classes.divider} />
+
                         <Typography variant="subtitle2">Enter the link to the file you're uploading.</Typography>
                         <Typography variant="p">It won't be stored on this server.</Typography>
                         <FormControl fullWidth={true} error={validation.uri.error} variant="outlined" margin="normal">
@@ -191,7 +207,9 @@ export default function MediaUpload(props) {
                             />
                             <FormHelperText id="title-helper">{validation.uri.helperText}</FormHelperText>
                         </FormControl>
+
                         <Divider className={classes.divider} />
+
                         <Typography variant="subtitle2">Choose tags for this document.</Typography>
                         <Typography variant="p">This will help you find it later while browsing your documents.<br/>Type below and press enter to add a new tag and it will appear below.</Typography>
                         <FormControl fullWidth={true} error={validation.tags.error} variant="outlined" margin="normal">
@@ -218,6 +236,25 @@ export default function MediaUpload(props) {
                                 })}
                             </Box>
                         </FormControl>
+
+                        <Divider className={classes.divider} />
+
+                        <Typography variant="subtitle2">Is this document public?</Typography>
+                        <Typography variant="p">When public, a guest will be able to view this document in the document browser.<br/>Don't worry, they won't be able to modify it in any way.</Typography>
+                        <FormControl fullWidth={true} error={validation.public.error} variant="outlined" margin="normal">
+                            <FormControlLabel
+                                control={
+                                    <Switch
+                                        checked={isPublic}
+                                        onChange={handleOnPublicSwitchChange}
+                                        value={isPublic}
+                                        color="primary"
+                                    />
+                                }
+                                label={isPublic ? "Public" : "Private"}
+                            />
+                        </FormControl>
+
                         <Box mt={3}>
                             <Button
                                 onClick={handleOnFormSubmit}

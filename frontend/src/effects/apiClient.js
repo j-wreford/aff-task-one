@@ -18,7 +18,7 @@ const api = axios.create({
 export const endpoints = {
     USER_AUTH: "/user/auth",
     USER_LOGOUT: "/user/logout",
-    MEDIA_UPLOAD: "/media"
+    MEDIA: "/media"
 }
 
 /**
@@ -58,7 +58,10 @@ export default (method, endpoint) => {
      * Sets triggered to true and subsequently triggers the effect to execute
      */
     const trigger = (data) => {
-        setPostData(data)
+
+        if (method === "post")
+            setPostData(data)
+
         setInProgress(true)
         setTriggered(true)
     }
@@ -75,6 +78,8 @@ export default (method, endpoint) => {
 
         if (method === "post")
             opts.data = postData
+
+        console.log("apiClient.js: Making an API request. ", opts)
 
         try {
 
@@ -102,9 +107,7 @@ export default (method, endpoint) => {
      */
     React.useEffect(() => {
 
-        console.log("About to make request...")
-
-        if (postData && triggered)
+        if (triggered && inProgress)
             makeRequest()
 
         return () => {

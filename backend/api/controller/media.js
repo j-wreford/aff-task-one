@@ -3,6 +3,7 @@
 const statusCodes = require('http-status-codes')
 const models = require('../../database/models')
 const responseFactory = require('../responseFactory')
+const userFactory = require('../userFactory')
 
 /**
  * Exposes methods to find and manipulate uploaded media
@@ -12,6 +13,9 @@ const mediaController = {
     /**
      * Get all media.
      * 
+     * If this session hasn't been authenticated, then only public documents
+     * are returned.
+     * 
      * response.data is an array of the media collection.
      */
     getAll: async (request, response) => {
@@ -20,7 +24,14 @@ const mediaController = {
 
         try {
 
-            let media = await models.Media.find()
+            let opts = {
+                isPublic: true
+            }
+
+            if (request.session.user)
+                delete opts.isPublic
+
+            let media = await models.Media.find(opts)
 
             reply.media = media
             reply.message = "Successfully found your media"
@@ -102,9 +113,10 @@ const mediaController = {
 
             const fields = {
                 title: request.body.title,
-                author: request.session.user._id,
+                authorId: request.session.user._id,
                 uri: request.body.uri,
-                tags: request.body.tags
+                tags: request.body.tags,
+                isPublic: request.body.isPublic
             }
 
             const media = new models.Media(fields)
