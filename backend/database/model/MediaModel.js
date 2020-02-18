@@ -12,12 +12,16 @@ const mediaSchema = new mongoose.Schema({
     },
     author: {
         type: mongoose.Types.ObjectId,
-        required: true,
-        unique: true
+        required: true
+    },
+    uri: {
+        type: String,
+        required: true
     },
     date: {
         type: Date,
-        required: true
+        required: false,
+        default: new Date()
     },
     tags: {
         type: [String],

@@ -26,7 +26,7 @@ export default function AppArea(props) {
     /**
      * Information about the currently logged in user
      */
-    const userContext = React.useContext(UserContext)
+    const [user] = React.useContext(UserContext)
 
     /**
      * Potentially renders the appropriate route if the user is
@@ -56,7 +56,7 @@ export default function AppArea(props) {
             </main>
         )
 
-        if (userContext) {
+        if (user) {
             components = (
                 <main className={classes.content}>
                     <Route path="/upload" component={MediaUpload} />
