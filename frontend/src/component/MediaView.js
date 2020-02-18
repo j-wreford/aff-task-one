@@ -4,7 +4,7 @@ import { useHistory } from 'react-router-dom'
 
 // material ui
 import { Grid, Chip, Typography, Button, Link, IconButton } from '@material-ui/core'
-import { ArrowBack as ArrowBackIcon, Launch as LaunchIcon } from '@material-ui/icons'
+import { ArrowBack as ArrowBackIcon, Launch as LaunchIcon, Delete as DeleteIcon } from '@material-ui/icons'
 
 // http status codes
 import statusCodes from 'http-status-codes'
@@ -31,6 +31,11 @@ export default function MediaView(props) {
     const history = useHistory()
 
     /**
+     * Information about the currently logged in user
+     */
+    const [user] = React.useContext(UserContext)
+
+    /**
      * Component classes
      */
     const classes = useStyles()
@@ -39,6 +44,11 @@ export default function MediaView(props) {
      * Api call to get a single piece of media
      */
     const [getMedia, getMediaIsInProgress, getMediaResponse] = useApi("get", apiEndpoints.MEDIA + "/" + params.id)
+
+    /**
+     * Api call to remove this piece of media
+     */
+    const [deleteMedia, deleteMediaIsInProgress, deleteMediaResponse] = useApi("delete", apiEndpoints.MEDIA + "/" + params.id)
 
     /**
      * The media object being viewed
@@ -53,12 +63,55 @@ export default function MediaView(props) {
     }
 
     /**
+     * Triggers a request to delete this media document.
+     * 
+     * If this is called client side without being logged in, then the api will
+     * refuse to remove it.
+     */
+    const handleActionDeleteButtonOnClick = event => {
+        deleteMedia()
+    }
+
+    /**
+     * Returns a grid item full of actions that can be made on the media document,
+     * if the user has been authenticated.
+     */
+    const getMediaActionsGridItem = () => {
+
+        if (user) {
+            return (
+                <Grid item xs={12}>
+                    <PaddedPaper>
+                        <Typography variant="h6">Actions</Typography>
+                        <br />
+                        <Button
+                            variant="contained"
+                            color="secondary"
+                            startIcon={<DeleteIcon />}
+                            disabled={deleteMediaIsInProgress}
+                            onClick={handleActionDeleteButtonOnClick}
+                        >
+                            Delete
+                        </Button>
+                    </PaddedPaper>
+                </Grid>
+            )
+        }
+        else {
+            return
+        }
+    }
+
+    /**
      * Fetch the media document on first mount
      */
     React.useEffect(() => {
         getMedia()
     }, [])
 
+    /**
+     * React to a response from the api to fetch the piece of media
+     */
     React.useEffect(() => {
 
         if (getMediaResponse) {
@@ -70,6 +123,20 @@ export default function MediaView(props) {
         }
 
     }, [getMediaResponse])
+
+    /**
+     * React to a response from the api to delete this piece of media
+     */
+    React.useEffect(() => {
+
+        if (deleteMediaResponse) {
+
+            if (getMediaResponse.status && getMediaResponse.status === statusCodes.OK) {
+                history.push("/browse")
+            }
+        }
+
+    }, [deleteMediaResponse])
 
     return (
         <React.Fragment>
@@ -110,6 +177,7 @@ export default function MediaView(props) {
                 </Grid>
                 <Grid item xs={3}>
                     <Grid container spacing={3}>
+                        {getMediaActionsGridItem()}
                         <Grid item xs={12}>
                             <PaddedPaper>
                                 <Typography variant="h6">History</Typography>
