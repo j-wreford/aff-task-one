@@ -2,7 +2,7 @@
 import React from 'react'
 
 // material ui
-import { Grid, Box, Typography, FormControl, InputLabel, FormHelperText, OutlinedInput, Chip, Button } from '@material-ui/core'
+import { Grid, Box, Divider, Typography, FormControl, InputLabel, FormHelperText, OutlinedInput, Chip, Button } from '@material-ui/core'
 
 // http status codes
 import statusCodes from 'http-status-codes'
@@ -162,6 +162,8 @@ export default function MediaUpload(props) {
             <Grid item xs={12}>
                 <PaddedPaper>
                     <form onSubmit={handleOnFormSubmit}>
+                        <Typography variant="subtitle2">Enter the title for the piece of media you're uploading.</Typography>
+                        <Typography variant="p">This is what will be displayed at the top of the page when viewing this item.</Typography>
                         <FormControl fullWidth={true} error={validation.title.error} variant="outlined" margin="normal">
                             <InputLabel htmlFor="title">Title</InputLabel>
                             <OutlinedInput
@@ -174,6 +176,9 @@ export default function MediaUpload(props) {
                             />
                             <FormHelperText id="title-helper">{validation.title.helperText}</FormHelperText>
                         </FormControl>
+                        <Divider className={classes.divider} />
+                        <Typography variant="subtitle2">Enter the link to the file you're uploading.</Typography>
+                        <Typography variant="p">It won't be stored on this server.</Typography>
                         <FormControl fullWidth={true} error={validation.uri.error} variant="outlined" margin="normal">
                             <InputLabel htmlFor="uri">Resource Link</InputLabel>
                             <OutlinedInput
@@ -186,6 +191,9 @@ export default function MediaUpload(props) {
                             />
                             <FormHelperText id="title-helper">{validation.uri.helperText}</FormHelperText>
                         </FormControl>
+                        <Divider className={classes.divider} />
+                        <Typography variant="subtitle2">Choose tags for this document.</Typography>
+                        <Typography variant="p">This will help you find it later while browsing your documents.<br/>Type below and press enter to add a new tag and it will appear below.</Typography>
                         <FormControl fullWidth={true} error={validation.tags.error} variant="outlined" margin="normal">
                             <InputLabel htmlFor="tag-add">Add a tag</InputLabel>
                             <OutlinedInput
