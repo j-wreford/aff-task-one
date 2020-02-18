@@ -3,6 +3,7 @@
 const statusCodes = require('http-status-codes')
 const models = require('../../database/models')
 const responseFactory = require('../responseFactory')
+const userFactory = require('../userFactory')
 
 /**
  * Exposes methods to find and manipulate uploaded media
@@ -102,9 +103,10 @@ const mediaController = {
 
             const fields = {
                 title: request.body.title,
-                author: request.session.user._id,
+                authorId: request.session.user._id,
                 uri: request.body.uri,
-                tags: request.body.tags
+                tags: request.body.tags,
+                isPublic: request.body.isPublic
             }
 
             const media = new models.Media(fields)
