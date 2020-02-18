@@ -9,6 +9,7 @@ import { Typography, Paper, Switch } from '@material-ui/core'
 
 // application
 import MediaUpload from '../MediaUpload'
+import MediaBrowser from '../MediaBrowser'
 import { UserContext } from '../../context/UserContext'
 import useStyles from '../../resource/styles/appAreaStyles'
 
@@ -60,14 +61,14 @@ export default function AppArea(props) {
             components = (
                 <main className={classes.content}>
                     <Route path="/upload" component={MediaUpload} />
-                    <Route path="/browse" component={Typography} />
+                    <Route path="/browse" component={MediaBrowser} />
                     <Route path="/chat" component={Typography} />
                 </main>
             )
         } else {
             components = (
                 <main className={classes.content}>
-                    <Route path="/browse" component={Typography} />
+                    <Route path="/browse" component={MediaBrowser} />
                 </main>
             )
         }
