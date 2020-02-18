@@ -175,7 +175,7 @@ const userController = {
         }
         else {
 
-            reply.message = "Logout failed - no user was logged in"
+            reply.message = "Logout failed (client user wasn't logged in)"
         }
 
         response.json(reply)
