@@ -14,9 +14,11 @@ import statusCodes from 'http-status-codes'
 
 // application
 import SubtleButton from './hoc/SubtleButton'
+import FormPrompt from './hoc/FormPrompt'
 import { UserContext } from '../context/UserContext'
 import useStyles from '../resource/styles/loginStyles'
 import useApi, { endpoints as apiEndpoints } from '../effects/apiClient'
+import useFormPostValidation from '../effects/formPostValidation'
 
 /**
  * Presents an interface for users to authenticate themselves and log
@@ -55,24 +57,19 @@ export default function Login(props) {
     const [showPassword, setshowPassword] = React.useState(false)
 
     /**
-     * Offers error flags and helper text for login form controls
-     */
-    const [validation, setValidation] = React.useState({
-        username: {
-            error: false,
-            helperText: ""
-        },
-        password: {
-            error: false,
-            helperText: ""
-        },
-        prompt: ""
-    })
-
-    /**
      * Describes variables used when contacting the api to login
      */
     const [triggerLogin, loginInProgress, loginResponse] = useApi("post", apiEndpoints.USER_AUTH)
+
+    /**
+     * Presents methods to validate the form
+     */
+    const [validation, setFieldValidation] = useFormPostValidation(["username", "password"])
+
+    /**
+     * Prompts the user about how to fix any errors in the form
+     */
+    const [formPrompt, setFormPrompt] = React.useState("")
 
     /**
      * Redirects the user to the root path if they're already logged in
@@ -88,14 +85,8 @@ export default function Login(props) {
      */
     const handleOnChangeUsername = (event) => {
         setUsername(event.target.value)
-        let v = validation
-        v.username = {
-            error: false,
-            helperText: ""
-        }
-        if (!v.password.error)
-            v.prompt = ""
-        setValidation(v)
+        setFieldValidation("username", false, "")
+        setFormPrompt("")
     }
 
     /**
@@ -103,14 +94,8 @@ export default function Login(props) {
      */
     const handleOnChangePassword = (event) => {
         setPassword(event.target.value)
-        let v = validation
-        v.password = {
-            error: false,
-            helperText: ""
-        }
-        if (!v.username.error)
-            v.prompt = ""
-        setValidation(v)
+        setFieldValidation("password", false, "")
+        setFormPrompt("")
     }
 
     /**
@@ -145,30 +130,28 @@ export default function Login(props) {
                 history.push("/")
             }
 
-            // there were form errors
-            if (loginResponse.status == statusCodes.BAD_REQUEST) {
+            // handle validation errors
+            if (loginResponse.status === statusCodes.BAD_REQUEST &&
+                loginResponse.data && loginResponse.data.fields) {
 
-                let data = loginResponse.data
-                let v = validation
+                for (const [fieldName, fieldValidation] of Object.entries(loginResponse.data.fields)) {
+                    setFieldValidation(fieldName, !fieldValidation.valid, fieldValidation.hint)
+                }
 
-                v.username.error = !data.fields.username.valid
-                v.username.helperText = data.fields.username.hint
-                
-                v.password.error = !data.fields.password.valid
-                v.password.helperText = data.fields.password.hint
-
-                v.prompt = data.message
-
-                setValidation(v)
+                if (loginResponse.data.message) {
+                    setFormPrompt(loginResponse.data.message)
+                }
             }
 
             // there was a pre-flight network error
+            /*
             if (loginResponse === -1) {
 
                 let v = validation
                 v.prompt = "Couldn't contact the login server"
                 setValidation(v)
             }
+            */
         }
 
     }, [loginResponse])
@@ -275,7 +258,7 @@ export default function Login(props) {
                                 Register
                             </Button>
                         </Box>
-                        <Typography className={classes.validationPrompt}>{validation.prompt}</Typography>
+                        <FormPrompt>{formPrompt}</FormPrompt>
                     </form>
                 </Box>
             </Paper>
