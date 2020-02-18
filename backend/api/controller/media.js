@@ -83,6 +83,43 @@ const mediaController = {
     },
 
     /**
+     * Delete a single piece of media.
+     * 
+     * If the client has not been authenticated, then the method bails early.
+     */
+    deleteOne: async (request, response) => {
+
+        // bail if the client hasn't logged in during their session
+        if (!request.session.user) {
+
+            response
+                .status(statusCodes.UNAUTHORIZED)
+                .json(responseFactory.createUnauthorizedResponse("Refused to delete"))
+
+            return
+        }
+
+        let reply = responseFactory.createDeleteResponse()
+
+        try {
+
+            let result = await models.Media.findByIdAndDelete(request.params.id)
+
+            reply.success = true
+            reply.message ="Successfully deleted the piece of media"
+
+            response.status(statusCodes.OK).json(reply)
+        }
+        catch (error) {
+        
+            reply.success = false
+            reply.message = "Something went wrong while trying to delete the piece of media"
+
+            response.status(statusCodes.INTERNAL_SERVER_ERROR).json(reply)
+        }
+    },
+
+    /**
      * Upload a single piece of media.
      * 
      * If the client has been authenticated, then the media document is added to the media
