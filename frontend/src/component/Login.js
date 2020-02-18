@@ -5,7 +5,7 @@ import React from 'react'
 import { useHistory } from 'react-router-dom'
 
 // material ui
-import { Paper, Box, OutlinedInput, InputLabel, InputAdornment, FormControl, Button, IconButton, Typography, FormHelperText } from '@material-ui/core'
+import { Grid, Paper, Box, OutlinedInput, InputLabel, InputAdornment, FormControl, Button, IconButton, Typography, FormHelperText } from '@material-ui/core'
 import { Visibility, VisibilityOff } from '@material-ui/icons'
 
 // api call
@@ -13,7 +13,9 @@ import axios from 'axios'
 import statusCodes from 'http-status-codes'
 
 // application
+import SubtleButton from './hoc/SubtleButton'
 import { UserContext } from '../context/UserContext'
+import useStyles from '../resource/styles/loginStyles'
 import useApi from '../api-client/apiClient'
 
 /**
@@ -21,6 +23,11 @@ import useApi from '../api-client/apiClient'
  * in to the application
  */
 export default function Login(props) {
+
+    /**
+     * Component classes
+     */
+    const classes = useStyles()
 
     /**
      * Information about the currently logged in user
@@ -134,7 +141,7 @@ export default function Login(props) {
             // successful login!
             if (loginResponse.status == statusCodes.OK) {
 
-                setUser(loginResponse.data)
+                setUser(loginResponse.data.user)
                 history.push("/")
             }
 
@@ -154,6 +161,14 @@ export default function Login(props) {
 
                 setValidation(v)
             }
+
+            // there was a pre-flight network error
+            if (loginResponse === -1) {
+
+                let v = validation
+                v.prompt = "Couldn't contact the login server"
+                setValidation(v)
+            }
         }
 
     }, [loginResponse])
@@ -170,67 +185,100 @@ export default function Login(props) {
         })
     }
 
+    /**
+     * Directs the user to the register page
+     * 
+     * @TODO
+     */
+    const handleRegisterBtnClick = (event) => {
+        //
+    }
+
+    /**
+     * Directs the user to the main application without logging in 
+     */
+    const handleGuestBtnClick = (event) => {
+        history.push("/")
+    }
+
     return (
-        <Paper>
-            <Box p={3}>
-                <Typography
-                    align="center"
-                    paragraph={true}
-                    style={{fontWeight: 500}}
-                >
-                    Please enter your account information
-                </Typography>
-                <form onSubmit={handleOnFormSubmit}>
-                    <FormControl fullWidth={true} error={validation.username.error} variant="outlined" margin="normal">
-                        <InputLabel htmlFor="username">Username</InputLabel>
-                        <OutlinedInput
-                            label="Username"
-                            id="username"
-                            type="text"
-                            value={username}
-                            onChange={handleOnChangeUsername}
-                            error={validation.username.error}
-                            className="login-input"
-                        />
-                        <FormHelperText id="username-helper">{validation.username.helperText}</FormHelperText>
-                    </FormControl>
-                    <FormControl fullWidth={true} error={validation.password.error} variant="outlined" margin="normal">
-                        <InputLabel htmlFor="password">Password</InputLabel>
-                        <OutlinedInput
-                            label="Password"
-                            id="password"
-                            type={showPassword ? 'text' : 'password'}
-                            value={password}
-                            onChange={handleOnChangePassword}
-                            error={validation.password.error}
-                            className="login-input"
-                            endAdornment={
-                                <InputAdornment position="end">
-                                    <IconButton
-                                        aria-label="toggle password visibility"
-                                        onClick={handleClickShowPassword}
-                                        onMouseDown={handleMouseDownPassword}
-                                    >
-                                        {showPassword ? <Visibility /> : <VisibilityOff />}
-                                    </IconButton>
-                                </InputAdornment>
-                            }
-                        />
-                        <FormHelperText id="password-helper">{validation.password.helperText}</FormHelperText>
-                    </FormControl>
-                    <Box mt={2}>
-                        <Button
-                            onClick={handleOnFormSubmit}
-                            variant="contained"
-                            color="primary"
-                            disabled={validation.prompt.length > 0 ? true : false}
+        <Grid id="Login" className={classes.root}>
+            <Paper className={classes.login}>
+                <Box p={3}>
+                    <Box className={classes.headerBox}>
+                        <Typography
+                            className={classes.header}
+                            paragraph={true}
+
                         >
-                            Login
-                        </Button>
+                            Login to your TMS account
+                        </Typography>
+                        <Typography className={classes.subHeader}>
+                            or <SubtleButton onClick={handleGuestBtnClick} color="primary" variant="text">continue as a guest</SubtleButton>
+                        </Typography>
                     </Box>
-                    <Typography>{validation.prompt}</Typography>
-                </form>
-            </Box>
-        </Paper>
+
+                    <form onSubmit={handleOnFormSubmit}>
+                        <FormControl fullWidth={true} error={validation.username.error} variant="outlined" margin="normal">
+                            <InputLabel htmlFor="username">Username</InputLabel>
+                            <OutlinedInput
+                                label="Username"
+                                id="username"
+                                type="text"
+                                value={username}
+                                onChange={handleOnChangeUsername}
+                                error={validation.username.error}
+                                className="login-input"
+                            />
+                            <FormHelperText id="username-helper">{validation.username.helperText}</FormHelperText>
+                        </FormControl>
+                        <FormControl fullWidth={true} error={validation.password.error} variant="outlined" margin="normal">
+                            <InputLabel htmlFor="password">Password</InputLabel>
+                            <OutlinedInput
+                                label="Password"
+                                id="password"
+                                type={showPassword ? 'text' : 'password'}
+                                value={password}
+                                onChange={handleOnChangePassword}
+                                error={validation.password.error}
+                                className="login-input"
+                                endAdornment={
+                                    <InputAdornment position="end">
+                                        <IconButton
+                                            aria-label="toggle password visibility"
+                                            onClick={handleClickShowPassword}
+                                            onMouseDown={handleMouseDownPassword}
+                                        >
+                                            {showPassword ? <Visibility /> : <VisibilityOff />}
+                                        </IconButton>
+                                    </InputAdornment>
+                                }
+                            />
+                            <FormHelperText id="password-helper">{validation.password.helperText}</FormHelperText>
+                        </FormControl>
+                        <Box mt={2}>
+                            <Button
+                                onClick={handleOnFormSubmit}
+                                variant="contained"
+                                color="primary"
+                                disabled={validation.prompt.length > 0 ? false : false}
+                                disableElevation={true}
+                            >
+                                Login
+                            </Button>
+                            <Button
+                                className={classes.registerBtn}
+                                onClick={handleRegisterBtnClick}
+                                variant="outlined"
+                                color="primary"
+                            >
+                                Register
+                            </Button>
+                        </Box>
+                        <Typography className={classes.validationPrompt}>{validation.prompt}</Typography>
+                    </form>
+                </Box>
+            </Paper>
+        </Grid>
     )
 }
