@@ -4,11 +4,15 @@ import React from 'react'
 // material ui
 import { Grid, Box, Typography, FormControl, InputLabel, FormHelperText, OutlinedInput, Chip, Button } from '@material-ui/core'
 
+// http status codes
+import statusCodes from 'http-status-codes'
+
 // application
 import PaddedPaper from '../component/hoc/PaddedPaper'
 import useStyles from '../resource/styles/mediaUploadStyles'
 import { UserContext } from '../context/UserContext'
-import useApi, { endpoints as apiEndpoints } from '../api-client/apiClient'
+import useApi, { endpoints as apiEndpoints } from '../effects/apiClient'
+import useFormPostValidation from '../effects/formPostValidation'
 
 /**
  * Presents an interface to let the logged in user upload a new document
@@ -25,6 +29,11 @@ export default function MediaUpload(props) {
      * Describes variables used when contacting the api to upload
      */
     const [triggerUpload, uploadInProgress, uploadResponse] = useApi("post", apiEndpoints.MEDIA_UPLOAD)
+
+    /**
+     * Presents methods to validate the form
+     */
+    const [validation, setFieldValidation] = useFormPostValidation(["title", "uri", "tags", "test"])
 
     /**
      * Information about the currently logged in user
@@ -111,13 +120,24 @@ export default function MediaUpload(props) {
     }
 
     /**
-     * Handle response from the api after triggering an upload request
+     * Handle response from the api after triggering an upload request.
+     * 
+     * Updates form validation.
      */
     React.useEffect(() => {
     
         if (uploadResponse) {
 
             console.log(uploadResponse)
+
+            // handle validation errors
+            if (uploadResponse.status === statusCodes.BAD_REQUEST &&
+                uploadResponse.data && uploadResponse.data.fields) {
+
+                for (const [fieldName, fieldValidation] of Object.entries(uploadResponse.data.fields)) {
+                    setFieldValidation(fieldName, !fieldValidation.valid, fieldValidation.hint)
+                }
+            }
         }
     }, [uploadResponse])
 
@@ -134,7 +154,7 @@ export default function MediaUpload(props) {
             <Grid item xs={12}>
                 <PaddedPaper>
                     <form onSubmit={handleOnFormSubmit}>
-                        <FormControl fullWidth={true} error={false} variant="outlined" margin="normal">
+                        <FormControl fullWidth={true} error={validation.title.error} variant="outlined" margin="normal">
                             <InputLabel htmlFor="title">Title</InputLabel>
                             <OutlinedInput
                                 label="Title"
@@ -142,11 +162,11 @@ export default function MediaUpload(props) {
                                 type="text"
                                 value={title}
                                 onChange={handleOnChangeTitle}
-                                error={false}
+                                error={validation.title.error}
                             />
-                            <FormHelperText id="title-helper">The title of the piece of media you're uploading.</FormHelperText>
+                            <FormHelperText id="title-helper">{validation.title.helperText}</FormHelperText>
                         </FormControl>
-                        <FormControl fullWidth={true} error={false} variant="outlined" margin="normal">
+                        <FormControl fullWidth={true} error={validation.uri.error} variant="outlined" margin="normal">
                             <InputLabel htmlFor="uri">Resource Link</InputLabel>
                             <OutlinedInput
                                 label="Resource Link"
@@ -154,11 +174,11 @@ export default function MediaUpload(props) {
                                 type="text"
                                 value={uri}
                                 onChange={handleOnChangeUri}
-                                error={false}
+                                error={validation.uri.error}
                             />
-                            <FormHelperText id="title-helper">The link to the piece of media you want to upload.</FormHelperText>
+                            <FormHelperText id="title-helper">{validation.uri.helperText}</FormHelperText>
                         </FormControl>
-                        <FormControl fullWidth={true} error={false} variant="outlined" margin="normal">
+                        <FormControl fullWidth={true} error={validation.tags.error} variant="outlined" margin="normal">
                             <InputLabel htmlFor="tag-add">Add a tag</InputLabel>
                             <OutlinedInput
                                 label="Add a tag"
@@ -168,7 +188,7 @@ export default function MediaUpload(props) {
                                 onChange={() => {}}
                                 onKeyPress={handleOnTagKeypress}
                             />
-                            <FormHelperText id="tag-add-helper">Press enter to add a tag once you've finished writing. It'll appear below.</FormHelperText>
+                            <FormHelperText id="tag-add-helper">{validation.tags.helperText}</FormHelperText>
                             <Box className={classes.tagsBox}>
                                 {tags.map(tag => {
                                     return (
