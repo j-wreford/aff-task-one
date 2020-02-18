@@ -14,8 +14,7 @@ module.exports =  {
 
         let obj = {
             message: "",
-            fields: {},
-            message: ""
+            fields: {}
         }
     
         fields.map((field) => {
@@ -41,5 +40,18 @@ module.exports =  {
         obj.message = ""
 
         return obj
+    },
+
+    /**
+     * Creates a response object to be sent when the client is attempting
+     * to call an endpoint which requires authentication
+     */
+    createUnauthorizedResponse: (prefix) => {
+
+        prefix = prefix || ""
+
+        return {
+            message: prefix + " (Client not authorized)"
+        }
     }
 }
