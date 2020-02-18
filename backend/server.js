@@ -5,10 +5,11 @@ const express = require('express')              // request listener
 const http = require('http')                    // http server which will use express as its listener
 const cors = require('cors')                    // express middleware to enable cross origin resource sharing
 const bodyParser = require('body-parser')       // express middleware to parse request bodies into an object
+const session = require('express-session')      // express middleware to store session based data, such as user info
+const cookieParser = require('cookie-parser')   // parses cookies bundled with a request
 
 const routeApi = require('./api/api-router')    // routes request endpoints to api routines
 const dbConnect = require('./database/connect') // connects to mongodb using mongoose
-const dbModels = require('./database/models')   // each database model wrapped inside a single object
 
 /**
  * Object instantiations
@@ -25,10 +26,45 @@ const database = dbConnect(                     // mongoose database connection
 /**
  * Express middleware
  */
-app.use(cors())
 app.use(express.json())
 app.use(bodyParser.json())
-app.use('/', router)
+app.use(cookieParser())
+app.use(session({
+    secret: "hello",
+    cookie: {
+        maxAge: 4000000,
+        httpOnly: false
+    },
+    resave: false,
+    saveUninitialized: false
+}))
+app.use(cors({
+    credentials: true,
+    origin: "http://127.0.0.1:3000"
+}))
+
+/**
+ * Custom middleware.
+ * 
+ * Removes a stale session id cookie if the a current user isn't found
+ * on the session object.
+ */
+app.use((request, response, next) => {
+    if (request.cookies['connect.sid'] &&
+        !request.session.user)
+        response.clearCookie("connect.sid")
+    next()
+})
+
+/**
+ * Custom middleware.
+ * 
+ * Logs the user for this session.
+ */
+app.use((request, response, next) => {
+    //console.log(request.session.user)
+    next()
+})
 
 /**
  * Application settings
@@ -39,6 +75,7 @@ app.set("port", process.env.PORT || 5000)
  * API configuration
  */
 routeApi(router)
+app.use('/', router)
 
 /**
  * Database

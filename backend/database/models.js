@@ -5,5 +5,6 @@
  * containing all of the application's database models.
  */
 module.exports = {
-    Media: require('./model/MediaModel')
+    Media: require('./model/MediaModel'),
+    UserAccount: require('./model/UserAccoutModel')
 }

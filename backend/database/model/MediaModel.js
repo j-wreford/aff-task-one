@@ -2,14 +2,16 @@
 
 const mongoose = require("mongoose");
 
+/**
+ * A single media document
+ */
 const mediaSchema = new mongoose.Schema({
     title: {
         type: String,
         required: true,
     },
-    // author here will be changed to reference a User model
     author: {
-        type: String,
+        type: mongoose.Types.ObjectId,
         required: true,
         unique: true
     },
@@ -21,6 +23,6 @@ const mediaSchema = new mongoose.Schema({
         type: [String],
         required: false
     }
-})
+}, { collection: "media" })
 
 module.exports = mongoose.model("Media", mediaSchema);

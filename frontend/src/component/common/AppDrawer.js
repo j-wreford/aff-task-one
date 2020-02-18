@@ -2,14 +2,19 @@
 
 // react
 import React  from 'react'
-import { Link, NavLink } from 'react-router-dom'
+import { Link, NavLink, useHistory } from 'react-router-dom'
 import clsx from 'clsx'
 
 // material ui
-import { Drawer, Typography, Divider, ButtonBase, IconButton, ListItem, ListItemIcon, ListItemText, Fade } from '@material-ui/core'
+import { Drawer, Typography, Divider, Button, ButtonBase, IconButton, ListItem, ListItemIcon, ListItemText, Fade } from '@material-ui/core'
 import { ChevronLeft as ChevronLeftIcon, Menu as MenuIcon, CloudUpload as CloudUploadIcon, PermMedia as PermMediaIcon, ExitToApp as ExitToAppIcon, Chat as ChatIcon, VpnKey } from '@material-ui/icons'
 
+// api call
+import axios from 'axios'
+import { useCookies } from 'react-cookie'
+
 // application
+import constants from '../../constants'
 import { UserContext } from '../../context/UserContext'
 import useStyles from '../../resource/styles/appDrawerStyles'
 
@@ -25,80 +30,19 @@ export default function AppDrawer(props) {
     const classes = useStyles()
 
     /**
-     * Information about the currently logged in user
+     * Obverse the API server's session cookie
      */
-    const userContext = React.useContext(UserContext)
+    const [cookie, setCookie, removeCookie] = useCookies([constants.SID_COOKIE_NAME])
 
     /**
-     * Menu configuration.
-     * 
-     * Contains an array of groupings of menu items.
-     * A divider is rendered between each group.
+     * Used to redirect the user upon logging out
      */
-    const menuItems = [
-        [
-            {
-                path: "/upload",
-                icon: <CloudUploadIcon />,
-                text: {
-                    primary: "Upload",
-                    secondary: "Create a document"
-                },
-                show: {
-                    loggedIn: true,
-                    loggedOut: false
-                }
-            },
-            {
-                path: "/browse",
-                icon: <PermMediaIcon />,
-                text: {
-                    primary: "Browse",
-                    secondary: "View documents"
-                },
-                show: {
-                    loggedIn: true,
-                    loggedOut: true
-                }
-            },
-            {
-                path: "/chat",
-                icon: <ChatIcon />,
-                text: {
-                    primary: "Chat",
-                    secondary: "Say hello"
-                },
-                show: {
-                    loggedIn: true,
-                    loggedOut: false
-                }
-            }
-        ],
-        [
-            {
-                path: "/login",
-                icon: <ExitToAppIcon />,
-                text: {
-                    primary: "Logout"
-                },
-                show: {
-                    loggedIn: true,
-                    loggedOut: false
-                }
-            },
-            {
-                path: "/login",
-                icon: <VpnKey />,
-                text: {
-                    primary: "Login"
-                },
-                show: {
-                    loggedIn: false,
-                    loggedOut: true
-                }
-            }
-        ]
-    ]
+    const history = useHistory()
+
+    /**
+     * Information about the currently logged in user
+     */
+    const [user, setUser] = React.useContext(UserContext)
 
     /**
      * Dictates weather or not the drawer is open, and controls the
@@ -113,6 +57,94 @@ export default function AppDrawer(props) {
     const handleToggleButtonClick = () => {
         setOpen(!open)
     }
+
+    /**
+     * Notifies the API that the user wishes to be logged out and
+     * explicitly removes the cookie from the browser
+     */
+    const handleLogoutButtonClick = async () => {
+    
+        await axios.post("http://127.0.0.1:5000/user/logout")    
+        removeCookie(constants.SID_COOKIE_NAME)
+        setUser(false)
+        history.push("/login")
+    }
+
+    /**
+     * Menu configuration.
+     * 
+     * Contains an array of groupings of menu items.
+     * A divider is rendered between each group.
+     */
+    const menuItems = [
+        [
+            {
+                type: "link",
+                path: "/upload",
+                icon: <CloudUploadIcon />,
+                text: {
+                    primary: "Upload",
+                    secondary: "Create a document"
+                },
+                show: {
+                    loggedIn: true,
+                    loggedOut: false
+                }
+            },
+            {
+                type: "link",
+                path: "/browse",
+                icon: <PermMediaIcon />,
+                text: {
+                    primary: "Browse",
+                    secondary: "View documents"
+                },
+                show: {
+                    loggedIn: true,
+                    loggedOut: true
+                }
+            },
+            {
+                type: "link",
+                path: "/chat",
+                icon: <ChatIcon />,
+                text: {
+                    primary: "Chat",
+                    secondary: "Say hello"
+                },
+                show: {
+                    loggedIn: true,
+                    loggedOut: false
+                }
+            }
+        ],
+        [
+            {
+                type: "button",
+                onClick: handleLogoutButtonClick,
+                icon: <ExitToAppIcon />,
+                text: {
+                    primary: "Logout"
+                },
+                show: {
+                    loggedIn: true,
+                    loggedOut: false
+                }
+            },
+            {
+                type: "link",
+                path: "/login",
+                icon: <VpnKey />,
+                text: {
+                    primary: "Login"
+                },
+                show: {
+                    loggedIn: false,
+                    loggedOut: true
+                }
+            }
+        ]
+    ]
     
     return (
         <Drawer
@@ -147,7 +179,7 @@ export default function AppDrawer(props) {
                 <React.Fragment>
                     {menuItemGroup.map(menuItem => {
                         // prevent menu items from showing when they shouldn't
-                        if (userContext) {
+                        if (user) {
                             if (!menuItem.show.loggedIn)
                                 return false
                         }
@@ -157,9 +189,16 @@ export default function AppDrawer(props) {
                         }
                         // render the menu item
                         return (
-                            <ButtonBase component={NavLink} to={menuItem.path}>
+                            <ButtonBase
+                                component={menuItem.type === "link" ? NavLink : Button}
+                                onClick={menuItem.onClick}
+                                to={menuItem.path}
+                            >
                                 <ListItem key="upload">
-                                    <ListItemIcon className={classes.icon}>
+                                    <ListItemIcon className={clsx({
+                                        [classes.buttonIcon]: menuItem.type === "button",
+                                        [classes.linkIcon]: menuItem.type === "link"
+                                    })}>
                                         {menuItem.icon}
                                     </ListItemIcon>
                                     <ListItemText primary={menuItem.text.primary} secondary={menuItem.text.secondary}/>

@@ -1,33 +1,78 @@
-"use strict"
-
 // react
 import React from 'react'
 
-/**
- * Creates a React context that can be provided / used to pass
- * data about the currently logged in user
- */
-export const UserContext = React.createContext(false)
+// api call
+import axios from 'axios'
+
+// cookie parsing
+import { useCookies } from 'react-cookie'
+
+// application
+import constants from '../constants'
 
 /**
- * Wraps child components inside the .Provider component, which
- * facilitates having a central source of updating and setting
- * the context's value
+ * Creates a React context that can be provides information about the currently
+ * logged in user, as well as a method to update it.
+ */
+export const UserContext = React.createContext({
+    user: false,
+    setUser: () => {}
+})
+
+/**
+ * Wraps child components inside the .Provider component, which facilitates having
+ * a central source of updating and setting the context's value.
+ * 
+ * Consumers of this provider are given access to both the user object and a method
+ * to set it.
  */
 export default (props) => {
 
     /**
-     * Default value for when there's no user currently logged in
+     * Used to grab the API server's session cookie
      */
-    const value = false;
+    const [cookies, setCookies] = useCookies([constants.SID_COOKIE_NAME])
 
     /**
-     * Discovers if a user has logged in and returns the result
+     * State object about the currently logged in user
      */
-    const getUser = () => value
+    const [user, setUser] = React.useState(false)
+
+    /**
+     * Solves discrepancies between session cookies and user obejcts.
+     * 
+     * If a session cookie is present on the browser, but we have no user object, then
+     * request it from the api server.
+     * 
+     * If a user object is present, but there is no session cookie present on the browser,
+     * then remove the user object.
+     */
+    React.useEffect(() => {
+
+        if (!user && cookies[constants.SID_COOKIE_NAME]) {
+
+            console.info("UserContext.js: Session cookie present but no user object. Requesting the user object...")
+
+            axios.get("http://127.0.0.1:5000/user/auth", { withCredentials: true })
+                .then(reply => {
+                    setUser(reply.data.user)
+                    console.log("UserContext.js: Refreshed user object.")
+                })
+                .catch(error => {
+                    setUser(false)
+                    console.log("UserContext.js: Error while requesting user object.", error)
+                })
+        }
+
+        if (user && !cookies[constants.SID_COOKIE_NAME]) {
+
+            console.info("UserContext.js: User object present but no session cookie. Removing user object...")
+            setUser(false)
+        }
+    })
 
     return (
-        <UserContext.Provider value={getUser()}>
+        <UserContext.Provider value={[user, setUser]}>
             {props.children}
         </UserContext.Provider>
     )

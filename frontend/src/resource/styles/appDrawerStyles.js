@@ -8,8 +8,14 @@ export default makeStyles(theme => ({
     menuButton: {
         marginRight: 36
     },
-    icon: {
+    linkIcon: {
         marginLeft: 8
+    },
+    buttonIcon: {
+        marginLeft: 0,
+        "&& + div": {
+            textTransform: "none"
+        }
     },
     hide: {
         display: 'none'
