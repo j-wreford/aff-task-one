@@ -2,7 +2,7 @@
 import React from 'react'
 
 // material ui
-import { Grid, Box, Divider, Typography, FormControl, FormControlLabel, InputLabel, FormHelperText, OutlinedInput, Chip, Button, Switch } from '@material-ui/core'
+import { Grid, Box, Divider, Typography, FormControl, FormControlLabel, InputLabel, FormHelperText, OutlinedInput, TextField, Chip, Button, Switch } from '@material-ui/core'
 
 // http status codes
 import statusCodes from 'http-status-codes'
@@ -34,7 +34,7 @@ export default function MediaUpload(props) {
     /**
      * Presents methods to validate the form
      */
-    const [validation, setFieldValidation] = useFormPostValidation(["title", "uri", "tags", "public"])
+    const [validation, setFieldValidation] = useFormPostValidation(["title", "uri", "tags", "description", "public"])
 
     /**
      * Prompts the user about how to fix any errors in the form
@@ -64,6 +64,11 @@ export default function MediaUpload(props) {
         { key: 1, value: "Test tag 2"},
         { key: 2, value: "Test tag 3"}
     ])
+
+    /**
+     * Form field: Media description
+     */
+    const [description, setDescription] = React.useState("")
 
     /**
      * Form field: Media publicity
@@ -126,6 +131,13 @@ export default function MediaUpload(props) {
     }
 
     /**
+     * Updates description state
+     */
+    const handleOnChangeDescription = event => {
+        setDescription(event.target.value)
+    }
+
+    /**
      * Sends a request to the api server 
      */
     const handleOnFormSubmit = event => {
@@ -134,6 +146,7 @@ export default function MediaUpload(props) {
             title: title,
             uri: uri,
             tags: tags.map(tag => tag.value),
+            description: description,
             isPublic: isPublic
         })
     }
@@ -175,98 +188,121 @@ export default function MediaUpload(props) {
             <Grid item xs={12}>
                 <PaddedPaper>
                     <form onSubmit={handleOnFormSubmit}>
-
-                        <Typography variant="subtitle2">Enter the title for the piece of media you're uploading.</Typography>
-                        <Typography variant="p">This is what will be displayed at the top of the page when viewing this item.</Typography>
-                        <FormControl fullWidth={true} error={validation.title.error} variant="outlined" margin="normal">
-                            <InputLabel htmlFor="title">Title</InputLabel>
-                            <OutlinedInput
-                                label="Title"
-                                id="title"
-                                type="text"
-                                value={title}
-                                onChange={handleOnChangeTitle}
-                                error={validation.title.error}
-                            />
-                            <FormHelperText id="title-helper">{validation.title.helperText}</FormHelperText>
-                        </FormControl>
-
-                        <Divider className={classes.divider} />
-
-                        <Typography variant="subtitle2">Enter the link to the file you're uploading.</Typography>
-                        <Typography variant="p">It won't be stored on this server.</Typography>
-                        <FormControl fullWidth={true} error={validation.uri.error} variant="outlined" margin="normal">
-                            <InputLabel htmlFor="uri">Resource Link</InputLabel>
-                            <OutlinedInput
-                                label="Resource Link"
-                                id="uri"
-                                type="text"
-                                value={uri}
-                                onChange={handleOnChangeUri}
-                                error={validation.uri.error}
-                            />
-                            <FormHelperText id="title-helper">{validation.uri.helperText}</FormHelperText>
-                        </FormControl>
-
-                        <Divider className={classes.divider} />
-
-                        <Typography variant="subtitle2">Choose tags for this document.</Typography>
-                        <Typography variant="p">This will help you find it later while browsing your documents.<br/>Type below and press enter to add a new tag and it will appear below.</Typography>
-                        <FormControl fullWidth={true} error={validation.tags.error} variant="outlined" margin="normal">
-                            <InputLabel htmlFor="tag-add">Add a tag</InputLabel>
-                            <OutlinedInput
-                                label="Add a tag"
-                                id="tag-add"
-                                type="text"
-                                error={false}
-                                onChange={() => {}}
-                                onKeyPress={handleOnTagKeypress}
-                            />
-                            <FormHelperText id="tag-add-helper">{validation.tags.helperText}</FormHelperText>
-                            <Box className={classes.tagsBox}>
-                                {tags.map(tag => {
-                                    return (
-                                        <Chip
-                                            className={classes.tag}
-                                            key={tag.key}
-                                            label={tag.value}
-                                            onDelete={removeTag(tag)}
-                                        />
-                                    )
-                                })}
-                            </Box>
-                        </FormControl>
-
-                        <Divider className={classes.divider} />
-
-                        <Typography variant="subtitle2">Is this document public?</Typography>
-                        <Typography variant="p">When public, a guest will be able to view this document in the document browser.<br/>Don't worry, they won't be able to modify it in any way.</Typography>
-                        <FormControl fullWidth={true} error={validation.public.error} variant="outlined" margin="normal">
-                            <FormControlLabel
-                                control={
-                                    <Switch
-                                        checked={isPublic}
-                                        onChange={handleOnPublicSwitchChange}
-                                        value={isPublic}
-                                        color="primary"
+                        <Grid container item xs={12} spacing={3}>
+                            <Grid item xs={6}>
+                                <Typography variant="subtitle2">Enter the title for the piece of media you're uploading.</Typography>
+                                <Typography variant="p">This is what will be displayed at the top of the page when viewing this item.</Typography>
+                                <FormControl fullWidth={true} error={validation.title.error} variant="outlined" margin="normal">
+                                    <InputLabel htmlFor="title">Title</InputLabel>
+                                    <OutlinedInput
+                                        label="Title"
+                                        id="title"
+                                        type="text"
+                                        value={title}
+                                        onChange={handleOnChangeTitle}
+                                        error={validation.title.error}
                                     />
-                                }
-                                label={isPublic ? "Public" : "Private"}
-                            />
-                        </FormControl>
+                                    <FormHelperText id="title-helper">{validation.title.helperText}</FormHelperText>
+                                </FormControl>
 
-                        <Box mt={3}>
-                            <Button
-                                onClick={handleOnFormSubmit}
-                                variant="contained"
-                                color="primary"
-                                disabled={uploadInProgress}
-                                disableElevation={true}
-                            >
-                                Upload
-                            </Button>
-                        </Box>
-                        <FormPrompt>{formPrompt}</FormPrompt>
+                                <Divider className={classes.divider} />
+
+                                <Typography variant="subtitle2">Enter the link to the file you're uploading.</Typography>
+                                <Typography variant="p">It won't be stored on this server.</Typography>
+                                <FormControl fullWidth={true} error={validation.uri.error} variant="outlined" margin="normal">
+                                    <InputLabel htmlFor="uri">Resource Link</InputLabel>
+                                    <OutlinedInput
+                                        label="Resource Link"
+                                        id="uri"
+                                        type="text"
+                                        value={uri}
+                                        onChange={handleOnChangeUri}
+                                        error={validation.uri.error}
+                                    />
+                                    <FormHelperText id="title-helper">{validation.uri.helperText}</FormHelperText>
+                                </FormControl>
+
+                                <Divider className={classes.divider} />
+
+                                <Typography variant="subtitle2">Choose tags for this document.</Typography>
+                                <Typography variant="p">This will help you find it later while browsing your documents.<br/>Type below and press enter to add a new tag and it will appear below.</Typography>
+                                <FormControl fullWidth={true} error={validation.tags.error} variant="outlined" margin="normal">
+                                    <InputLabel htmlFor="tag-add">Add a tag</InputLabel>
+                                    <OutlinedInput
+                                        label="Add a tag"
+                                        id="tag-add"
+                                        type="text"
+                                        error={false}
+                                        onChange={() => {}}
+                                        onKeyPress={handleOnTagKeypress}
+                                    />
+                                    <FormHelperText id="tag-add-helper">{validation.tags.helperText}</FormHelperText>
+                                    <Box className={classes.tagsBox}>
+                                        {tags.map(tag => {
+                                            return (
+                                                <Chip
+                                                    className={classes.tag}
+                                                    key={tag.key}
+                                                    label={tag.value}
+                                                    onDelete={removeTag(tag)}
+                                                />
+                                            )
+                                        })}
+                                    </Box>
+                                </FormControl>
+
+                                <Divider className={classes.divider} />
+
+                                <Typography variant="subtitle2">Is this document public?</Typography>
+                                <Typography variant="p">When public, a guest will be able to view this document in the document browser.<br/>Don't worry, they won't be able to modify it in any way.</Typography>
+                                <FormControl fullWidth={true} error={validation.public.error} variant="outlined" margin="normal">
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
+                                                checked={isPublic}
+                                                onChange={handleOnPublicSwitchChange}
+                                                value={isPublic}
+                                                color="primary"
+                                            />
+                                        }
+                                        label={isPublic ? "Public" : "Private"}
+                                    />
+                                </FormControl>
+                            </Grid>
+                            <Grid item xs={6}>
+                                <Typography variant="subtitle2">Write a description.</Typography>
+                                <Typography variant="p">This will be displayed prominantly when viewing it later.</Typography>
+                                <FormControl fullWidth={true} error={validation.description.error} variant="outlined" margin="normal">
+                                    <TextField
+                                        label="Description"
+                                        id="description"
+                                        multiline
+                                        rows={10}
+                                        variant="outlined"
+                                        value={description}
+                                        onChange={handleOnChangeDescription}
+                                        error={validation.description.error}
+                                    />
+                                    <FormHelperText id="title-helper">{validation.description.helperText}</FormHelperText>
+                                </FormControl>
+                            </Grid>
+                        </Grid>
+                        <Grid container xs={12}>
+                            <Grid item xs={12}>
+                                <Box mt={3}>
+                                    <Button
+                                        onClick={handleOnFormSubmit}
+                                        variant="contained"
+                                        color="primary"
+                                        disabled={uploadInProgress}
+                                        disableElevation={true}
+                                    >
+                                        Upload
+                                    </Button>
+                                </Box>
+                                <FormPrompt>{formPrompt}</FormPrompt>
+                            </Grid>
+                        </Grid>
                     </form>
                 </PaddedPaper>
             </Grid>
