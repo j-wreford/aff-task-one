@@ -23,9 +23,7 @@ export default fields => {
      * This state is regenerated whenever a field state mutates.
      */
     const [validation, setValidation] = React.useState(
-        fields.reduce((o, key) =>
-                ({...o, [key]: { error: false, helperText: ""}}), {}
-        )
+        fields.reduce((o, key) => ({...o, [key]: { error: false, helperText: ""}}), {})
     )
 
     /**
@@ -59,7 +57,6 @@ export default fields => {
 
         setValidation(v)
 
-        
     }, Object.entries(fieldStates).map(field => field[1].value))
 
     /**
