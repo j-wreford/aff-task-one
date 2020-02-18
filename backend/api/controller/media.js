@@ -120,6 +120,46 @@ const mediaController = {
     },
 
     /**
+     * Updates a single piece of media.
+     * 
+     * If the client has not been authenticated, then the method bails early.
+     * 
+     * @TODO Calling this method makes a copy of the previous version and adds it to the MediaHistory
+     * collection.
+     */
+    updateOne: async (request, response) => {
+
+        // bail if the client hasn't logged in during their session
+        if (!request.session.user) {
+
+            response
+                .status(statusCodes.UNAUTHORIZED)
+                .json(responseFactory.createUnauthorizedResponse("Refused to update"))
+
+            return
+        }
+
+        let reply = responseFactory.createUpdateResponse()
+
+        try {
+
+            models.Media.updateOne({ _id: request.params.id }, request.body)
+
+            reply.success = true
+            reply.message ="Successfully updated the piece of media"
+
+            response.status(statusCodes.OK).json(reply)
+        }
+        catch (error) {
+
+            reply.success = false
+            reply.message = "Something went wrong while trying to update the piece of media"
+
+            response.status(statusCodes.INTERNAL_SERVER_ERROR).json(reply)
+        }
+    },
+
+    /**
      * Upload a single piece of media.
      * 
      * If the client has been authenticated, then the media document is added to the media

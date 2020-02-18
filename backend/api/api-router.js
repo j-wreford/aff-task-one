@@ -37,6 +37,7 @@ const routeApi = (router) => {
     router.route('/media/:id')
         .get(controllers.media.findOne)
         .delete(controllers.media.deleteOne)
+        .put(controllers.media.updateOne)
 }
 
 module.exports = routeApi
