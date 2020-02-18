@@ -50,7 +50,6 @@ app.use(cors({
  * on the session object.
  */
 app.use((request, response, next) => {
-    console.log(request)
     if (request.cookies['connect.sid'] &&
         !request.session.user)
         response.clearCookie("connect.sid")
@@ -63,7 +62,7 @@ app.use((request, response, next) => {
  * Logs the user for this session.
  */
 app.use((request, response, next) => {
-    console.log(request.session.user)
+    //console.log(request.session.user)
     next()
 })
 
