@@ -9,6 +9,7 @@ import statusCodes from 'http-status-codes'
 
 // application
 import PaddedPaper from '../component/hoc/PaddedPaper'
+import FormPrompt from './hoc/FormPrompt'
 import useStyles from '../resource/styles/mediaUploadStyles'
 import { UserContext } from '../context/UserContext'
 import useApi, { endpoints as apiEndpoints } from '../effects/apiClient'
@@ -33,7 +34,12 @@ export default function MediaUpload(props) {
     /**
      * Presents methods to validate the form
      */
-    const [validation, setFieldValidation] = useFormPostValidation(["title", "uri", "tags", "test"])
+    const [validation, setFieldValidation] = useFormPostValidation(["title", "uri", "tags"])
+
+    /**
+     * Prompts the user about how to fix any errors in the form
+     */
+    const [formPrompt, setFormPrompt] = React.useState("")
 
     /**
      * Information about the currently logged in user
@@ -128,14 +134,16 @@ export default function MediaUpload(props) {
     
         if (uploadResponse) {
 
-            console.log(uploadResponse)
-
             // handle validation errors
             if (uploadResponse.status === statusCodes.BAD_REQUEST &&
                 uploadResponse.data && uploadResponse.data.fields) {
 
                 for (const [fieldName, fieldValidation] of Object.entries(uploadResponse.data.fields)) {
                     setFieldValidation(fieldName, !fieldValidation.valid, fieldValidation.hint)
+                }
+
+                if (uploadResponse.data.message) {
+                    setFormPrompt(uploadResponse.data.message)
                 }
             }
         }
@@ -213,6 +221,7 @@ export default function MediaUpload(props) {
                                 Upload
                             </Button>
                         </Box>
+                        <FormPrompt>{formPrompt}</FormPrompt>
                     </form>
                 </PaddedPaper>
             </Grid>
