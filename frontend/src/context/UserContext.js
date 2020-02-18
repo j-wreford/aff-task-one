@@ -5,7 +5,7 @@ import React from 'react'
 import axios from 'axios'
 
 // cookie parsing
-import Cookies, { useCookies } from 'react-cookie'
+import { useCookies } from 'react-cookie'
 
 // application
 import constants from '../constants'
