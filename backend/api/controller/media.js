@@ -80,6 +80,15 @@ const mediaController = {
 
         let reply = responseFactory.createGetResponse("upload", {})
 
+        // bail if the client hasn't logged in during their session
+        if (!request.session.user) {
+
+            reply.message = "Refused to upload (client not authorised)"
+
+            response.status(statusCodes.UNAUTHORIZED)
+            response.json(reply)
+        }
+
         try {
 
             const media = new models.Media(request.body)
