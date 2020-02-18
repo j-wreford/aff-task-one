@@ -118,8 +118,6 @@ const mediaController = {
         }
         catch (error) {
 
-            console.log("UPLOAD ERROR: ", error)
-
             // handle missing or incorrect field values
             if (error.name && error.name === "ValidationError" && error.errors) {
 
