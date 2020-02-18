@@ -2,20 +2,7 @@
 
 const statusCodes = require('http-status-codes')
 const models = require('../../database/models')
-
-/**
- * Returns a default object to be used as the template for any response to a request,
- * in order to promote consistency between API routes.
- * 
- * @TODO Move this function to another module
- */
-const defaultResponse = (defaultData) => {
-    return {
-        error: false,
-        message: "",
-        data: defaultData
-    }
-}
+const responseFactory = require('../responseFactory')
 
 /**
  * Exposes methods to find and manipulate uploaded media
@@ -29,13 +16,13 @@ const mediaController = {
      */
     getAll: async (request, response) => {
 
-        let reply = defaultResponse([])
+        let reply = responseFactory.createGetResponse("media", [])
 
         try {
 
             let media = await models.Media.find()
 
-            reply.data = media
+            reply.media = media
             reply.message = "Successfully found your media"
 
             response.status(statusCodes.OK)
@@ -43,7 +30,7 @@ const mediaController = {
         }
         catch (error) {
 
-            reply.error = error
+            //reply.error = error
             reply.message = "Something went wrong while trying to find your media"
             
             response.status(statusCodes.INTERNAL_SERVER_ERROR)
@@ -58,13 +45,13 @@ const mediaController = {
      */
     findOne: async (request, response) => {
 
-        let reply = defaultResponse({})
+        let reply = responseFactory.createGetResponse("media", {})
 
         try {
 
             let media = await models.Media.findById(request.params.id)
 
-            reply.data = media
+            reply.media = media
             reply.message = "Successfully found this piece of media"
 
             response.status(statusCodes.OK)
@@ -72,7 +59,7 @@ const mediaController = {
         }
         catch (error) {
 
-            reply.error = error
+            //reply.error = error
             reply.message = "Something went wrong while trying to find this piece of media"
 
             if (error.name == "CastError")
@@ -91,7 +78,7 @@ const mediaController = {
      */
     upload: async (request, response) => {
 
-        let reply = defaultResponse({})
+        let reply = responseFactory.createGetResponse("upload", {})
 
         try {
 
@@ -100,13 +87,13 @@ const mediaController = {
             let upload = await media.save()
 
             reply.message = "Successfully uploaded your new piece of media"
-            reply.data = upload
+            reply.upload = upload
 
             response.status(200).json(reply)
         }
         catch (error) {
 
-            reply.error = error
+            //reply.error = error
             reply.message = "Something went wrong while trying to upload your new piece of media"
 
             response.status(statusCodes.BAD_REQUEST)

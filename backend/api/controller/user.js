@@ -2,42 +2,7 @@
 
 const statusCodes = require('http-status-codes')
 const models = require('../../database/models')
-
-/**
- * Returns a default object to be used as the template for any response to a request,
- * in order to promote consistency between API routes.
- * 
- * @TODO Move this function to another module
- */
-const defaultResponse = (defaultData) => {
-    return {
-        error: false,
-        message: "",
-        data: defaultData
-    }
-}
-
-/**
- * Creates a response object containing error information about each field
- * inside a post request
- */
-const createPostRequestResponse = fields => {
-
-    let obj = {
-        message: "",
-        fields: {}
-    }
-
-    fields.map((field, index) => {
-
-        obj.fields[field] = {
-            valid: true,
-            hint: ""
-        }
-    })
-
-    return obj
-}
+const responseFactory = require('../responseFactory')
 
 /**
  * Exposes methods to authenticate and register users
@@ -57,7 +22,7 @@ const userController = {
      */
     auth: async (request, response) => {   
 
-        let reply = createPostRequestResponse(["username", "password"])
+        let reply = responseFactory.createPostResponse(["username", "password"])
 
         // attempt to authenticate with the supplied parameters
         try {
@@ -150,10 +115,7 @@ const userController = {
      */
     validate: async (request, response) => {
 
-        let reply = {
-            message: "",
-            user: false
-        }
+        let reply = responseFactory.createGetResponse("user", false)
 
         if (request.session && request.session.user) {
 
@@ -174,7 +136,7 @@ const userController = {
      */
     logout: async (request, response) => {
 
-        let reply = defaultResponse()
+        let reply = responseFactory.createGetResponse("loggedOut", false)
         
         if (request.session && request.session.user) {
 
@@ -182,6 +144,7 @@ const userController = {
             response.clearCookie("connect.sid")
 
             reply.message = "Successfully logged out"
+            reply.loggedOut = true
         }
         else {
 
@@ -198,7 +161,7 @@ const userController = {
      */
     register: async (request, response) => {
 
-        let reply = defaultResponse({})
+        let reply = responseFactory.createGetResponse("user", false)
 
         try {
 
@@ -209,13 +172,12 @@ const userController = {
 
             // NOT WORKING
             if (delete saved.password)
-                reply.data = saved
+                reply.user = saved
 
             response.status(statusCodes.OK)
         }
         catch (error) {
 
-            reply.error = error
             reply.message = "Something went wrong when trying to create your account"
             response.status(statusCodes.INTERNAL_SERVER_ERROR)
 
