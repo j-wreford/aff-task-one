@@ -6,6 +6,8 @@ const drawerWidth = 240;
 
 export default makeStyles(theme => ({
     root: {
+        position: 'sticky',
+        top: 0,
         display: 'flex'
     },
     grow: {
