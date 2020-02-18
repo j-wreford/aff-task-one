@@ -106,7 +106,7 @@ export default function MediaUpload(props) {
         triggerUpload({
             title: title,
             uri: uri,
-            tags: tags
+            tags: tags.map(tag => tag.value)
         })
     }
 
@@ -114,9 +114,11 @@ export default function MediaUpload(props) {
      * Handle response from the api after triggering an upload request
      */
     React.useEffect(() => {
-        
-        debugger
+    
+        if (uploadResponse) {
 
+            console.log(uploadResponse)
+        }
     }, [uploadResponse])
 
     return (
