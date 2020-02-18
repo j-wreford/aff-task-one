@@ -92,6 +92,7 @@ const userController = {
             if (user && match) {
 
                 reply.message = "Successfully logged in"
+                reply.user = request.session.user
 
                 response.status(statusCodes.OK)
 
