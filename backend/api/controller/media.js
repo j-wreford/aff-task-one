@@ -64,7 +64,7 @@ const mediaController = {
 
             response
                 .status(statusCodes.UNAUTHORIZED)
-                .json(responseFactory.createUnauthorizedResponse("Refused to delete"))
+                .json(responseFactory.createUnauthorizedResponse("Refused to get revisions"))
 
             return
         }
@@ -86,6 +86,46 @@ const mediaController = {
             console.log("REVISIONS ERROR: ", error)
 
             reply.message = "Something went wrong while trying to find revisions"
+            
+            response.status(statusCodes.INTERNAL_SERVER_ERROR)
+            response.json(reply)
+        }
+    },
+
+    /**
+     * Returns a single revision for the given original media document.
+     * 
+     * If this session hasn't been authenticated, then the method bails early.
+     */
+    getOneRevision: async (request, response) => {
+
+        // bail if the client hasn't logged in during their session
+        if (!request.session.user) {
+
+            response
+                .status(statusCodes.UNAUTHORIZED)
+                .json(responseFactory.createUnauthorizedResponse("Refused to get a revision"))
+
+            return
+        }
+
+        let reply = responseFactory.createGetResponse("revision", {})
+
+        try {
+
+            let revision = await models.MediaRevision.findById(request.params.id)
+
+            reply.revision = revision
+            reply.message = "Successfully found the revision"
+
+            response.status(statusCodes.OK)
+            response.json(reply)
+        }
+        catch (error) {
+
+            console.log("REVISION ERROR: ", error)
+
+            reply.message = "Something went wrong while trying to find the revision"
             
             response.status(statusCodes.INTERNAL_SERVER_ERROR)
             response.json(reply)
