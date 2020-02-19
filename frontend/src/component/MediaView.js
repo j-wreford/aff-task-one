@@ -46,6 +46,11 @@ export default function MediaView(props) {
     const [getMedia, getMediaIsInProgress, getMediaResponse] = useApi("get", apiEndpoints.MEDIA + "/" + params.id)
 
     /**
+     * Api call to get a all reivisions for this piece of media
+     */
+    const [getRevisions, getRevisionsIsInProgress, getRevisionsResponse] = useApi("get", apiEndpoints.REVISIONS + "/" + params.id)
+
+    /**
      * Api call to remove this piece of media
      */
     const [deleteMedia, deleteMediaIsInProgress, deleteMediaResponse] = useApi("delete", apiEndpoints.MEDIA + "/" + params.id)
@@ -54,6 +59,11 @@ export default function MediaView(props) {
      * The media object being viewed
      */
     const [media, setMedia] = React.useState({})
+
+    /**
+     * The list of revisions for the media document being viewed
+     */
+    const [revisions, setRevisions] = React.useState([])
 
     /**
      * Returns to the media browser
@@ -70,6 +80,26 @@ export default function MediaView(props) {
      */
     const handleActionDeleteButtonOnClick = event => {
         deleteMedia()
+    }
+
+    /**
+     * Returns a grid item full of revisions of this media document
+     */
+    const getMediaRevisionsGridItem = () => {
+
+        if (user && revisions) {
+            return (
+                <Grid item xs={12}>
+                    <PaddedPaper>
+                        <Typography variant="h6">History</Typography>
+                        <Typography variant="p">View a past version of this media document</Typography>
+                        {revisions.map(revision => {
+                            return <Typography>{revision.title}</Typography>
+                        })}
+                    </PaddedPaper>
+                </Grid>
+            )
+        }
     }
 
     /**
@@ -107,6 +137,7 @@ export default function MediaView(props) {
      */
     React.useEffect(() => {
         getMedia()
+        getRevisions()
     }, [])
 
     /**
@@ -118,11 +149,24 @@ export default function MediaView(props) {
 
             if (getMediaResponse.status && getMediaResponse.status === statusCodes.OK) {
                 setMedia(getMediaResponse.data.media)
-                console.log(getMediaResponse.data.media)
             }
         }
 
     }, [getMediaResponse])
+
+    /**
+     * React to a response from the api to fetch revisions for this piece of media
+     */
+    React.useEffect(() => {
+
+        if (getRevisionsResponse) {
+
+            if (getRevisionsResponse.status && getRevisionsResponse.status === statusCodes.OK) {
+                setRevisions(getRevisionsResponse.data.revisions)
+            }
+        }
+
+    }, [getRevisionsResponse])
 
     /**
      * React to a response from the api to delete this piece of media
@@ -178,12 +222,7 @@ export default function MediaView(props) {
                 <Grid item xs={3}>
                     <Grid container spacing={3}>
                         {getMediaActionsGridItem()}
-                        <Grid item xs={12}>
-                            <PaddedPaper>
-                                <Typography variant="h6">History</Typography>
-                                <Typography variant="p">View a past version of this media document</Typography>
-                            </PaddedPaper>
-                        </Grid>
+                        {getMediaRevisionsGridItem()}
                     </Grid>
                 </Grid>
             </Grid>

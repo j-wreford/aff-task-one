@@ -6,5 +6,6 @@
  */
 module.exports = {
     Media: require('./model/MediaModel'),
+    MediaRevision: require('./model/MediaRevisionModel'),
     UserAccount: require('./model/UserAccoutModel')
 }
