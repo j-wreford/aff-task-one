@@ -93,10 +93,10 @@ export default function MediaViewOriginalSidebar(props) {
     }
 
     /**
-     * Directs the browser to /edit/:id
+     * Directs the browser to /media/:id/edit
      */
     const handleActionEditButtonOnClick = event => {
-        history.push("/edit/" + props.mediaDocument._id)
+        history.push("/media/" + props.mediaDocument._id + "/edit")
     }
 
     /**
@@ -145,7 +145,7 @@ export default function MediaViewOriginalSidebar(props) {
                             {revisions.length > 0 ? null : <Typography className={classes.subtleParagraph} variant="p">There are no revisions to show</Typography>}
                         </div>
                         <List>
-                        {revisions.map((revisionDocument, index) => {
+                        {revisions.slice(0).reverse().map((revisionDocument, index) => {
                             return (
                                 <ListItem button onClick={handleRevisionButtonOnClick(revisionDocument._id)}>
                                     <ListItemIcon>
