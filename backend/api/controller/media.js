@@ -3,7 +3,6 @@
 const statusCodes = require('http-status-codes')
 const models = require('../../database/models')
 const responseFactory = require('../responseFactory')
-const userFactory = require('../userFactory')
 
 /**
  * Exposes methods to find and manipulate uploaded media
