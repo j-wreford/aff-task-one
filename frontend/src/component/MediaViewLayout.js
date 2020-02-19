@@ -85,6 +85,7 @@ export default function MediaViewLayout(props) {
         switch (viewMode) {
 
             case viewModes.VIEW_ORIGINAL:
+            case viewModes.EDIT_ORIGINAL:
                 getMediaDocument(null, {
                     id: params.id
                 })
