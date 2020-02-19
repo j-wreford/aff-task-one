@@ -7,44 +7,49 @@ const UserAccount = require('./UserAccoutModel')
 /**
  * A single media document
  */
-const mediaSchema = new mongoose.Schema({
-    title: {
-        type: String,
-        required: true,
-    },
-    authorId: {
-        type: mongoose.Types.ObjectId,
-        required: true
-    },
-    author: {
-        type: Object,
-        default: {
-            username: "[deleted]"
+const mediaSchema = new mongoose.Schema(
+    {
+        title: {
+            type: String,
+            required: true,
+        },
+        authorId: {
+            type: mongoose.Types.ObjectId,
+            required: true
+        },
+        author: {
+            type: Object,
+            default: {
+                username: "[deleted]"
+            }
+        },
+        uri: {
+            type: String,
+            required: true
+        },
+        date: {
+            type: Date,
+            required: false,
+            default: new Date()
+        },
+        tags: {
+            type: [String],
+            required: false
+        },
+        description: {
+            type: String,
+            required: false,
+            default: ""
+        },
+        isPublic: {
+            type: Boolean,
+            default: false
         }
     },
-    uri: {
-        type: String,
-        required: true
-    },
-    date: {
-        type: Date,
-        required: false,
-        default: new Date()
-    },
-    tags: {
-        type: [String],
-        required: false
-    },
-    description: {
-        type: String,
-        required: false,
-        default: ""
-    },
-    isPublic: {
-        type: Boolean,
-        default: false
+    {
+        collection: "media"
     }
-}, { collection: "media" })
+)
 
 /**
  * Pre hook to save the actual user document onto the piece of media
