@@ -157,7 +157,8 @@ export default function MediaViewLayout(props) {
      */
     React.useEffect(() => {
 
-        if (viewMode !== viewModes.EDIT_ORIGINAL)
+        if (viewMode !== viewModes.EDIT_ORIGINAL &&
+            viewMode !== viewModes.VIEW_REVISION)
             return
 
         let response = putMediaDocumentResponse
@@ -165,7 +166,16 @@ export default function MediaViewLayout(props) {
         if (response &&
             response.status === statusCodes.OK &&
             response.data.success) {
-                history.push("/media/" + mediaDocument._id)
+
+                // if we're in edit mode, then the id of the document we want to view 
+                // is simply the id of the current media document.
+                //
+                // if we're in view mode, then the id of the document we want to go back
+                // to is the one this revision media document was a revision of.
+                let id = viewMode == viewModes.EDIT_ORIGINAL ? 
+                    mediaDocument._id : mediaDocument.forMediaDocument
+
+                history.push("/media/" + id)
             }
 
     }, [putMediaDocumentResponse])
@@ -202,10 +212,29 @@ export default function MediaViewLayout(props) {
     /**
      * If viewMode is viewModes.VIEW_REVISION, then the current revision
      * is restored
-     * @TODO
      */
     const handleRestoreButtonOnClick = event => {
         event.preventDefault()
+
+        if (viewMode !== viewModes.VIEW_REVISION)
+            return
+
+        // STEP 1)
+        // update the original media document
+        putMediaDocument(
+            {
+                title: mediaDocument.title,
+                uri: mediaDocument.uri,
+                description: mediaDocument.description
+            },
+            {
+                id: mediaDocument.forMediaDocument
+            }
+        )
+
+        // STEP 2)
+        // delete this media document (this revision has been restored, so it
+        // doesn't need to be kept)
     }
 
     /**
