@@ -45,7 +45,8 @@ export default function AppArea(props) {
             components = (
                 <main className={classes.content}>
                     <Route path="/upload" component={MediaUpload} />
-                    <Route path="/media/:id" render={props => <MediaViewLayout viewMode={viewModes.VIEW_ORIGINAL} {...props} />} />
+                    <Route exact path="/media/:id" render={props => <MediaViewLayout viewMode={viewModes.VIEW_ORIGINAL} {...props} />} />
+                    <Route exact path="/media/:id/edit" render={props => <MediaViewLayout viewMode={viewModes.EDIT_ORIGINAL} {...props} />} />
                     <Route path="/revision/:id" render={props => <MediaViewLayout viewMode={viewModes.VIEW_REVISION} {...props} />} />
                     <Route path="/browse" component={MediaBrowser} />
                     <Route path="/chat" component={Typography} />
