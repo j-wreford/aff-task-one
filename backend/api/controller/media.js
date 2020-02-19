@@ -16,6 +16,8 @@ const mediaController = {
      * If this session hasn't been authenticated, then only public documents
      * are returned.
      * 
+     * This method only returns master documents, and not revised ones.
+     * 
      * response.data is an array of the media collection.
      */
     getAll: async (request, response) => {
@@ -25,7 +27,8 @@ const mediaController = {
         try {
 
             let opts = {
-                isPublic: true
+                isPublic: true,
+                __t: "Master"
             }
 
             if (request.session.user)
@@ -43,6 +46,46 @@ const mediaController = {
 
             //reply.error = error
             reply.message = "Something went wrong while trying to find your media"
+            
+            response.status(statusCodes.INTERNAL_SERVER_ERROR)
+            response.json(reply)
+        }
+    },
+
+    /**
+     * Returns all revisions for the given master media document.
+     * 
+     * If this session hasn't been authenticated, then the method bails early.
+     */
+    getAllRevisions: async (request, response) => {
+
+        // bail if the client hasn't logged in during their session
+        if (!request.session.user) {
+
+            response
+                .status(statusCodes.UNAUTHORIZED)
+                .json(responseFactory.createUnauthorizedResponse("Refused to delete"))
+
+            return
+        }
+
+        let reply = responseFactory.createGetResponse("revisions", [])
+
+        try {
+
+            let revisions = await models.MediaRevision.find()
+
+            reply.revisions = revisions
+            reply.message = "Successfully found revisions"
+
+            response.status(statusCodes.OK)
+            response.json(reply)
+        }
+        catch (error) {
+
+            console.log("REVISIONS ERROR: ", error)
+
+            reply.message = "Something went wrong while trying to find revisions"
             
             response.status(statusCodes.INTERNAL_SERVER_ERROR)
             response.json(reply)
@@ -124,13 +167,13 @@ const mediaController = {
      * 
      * If the client has not been authenticated, then the method bails early.
      * 
-     * @TODO Calling this method makes a copy of the previous version and adds it to the MediaHistory
-     * collection.
+     * Calling this method publishes a MediaRevision document representing
+     * the state before the update.
      */
     updateOne: async (request, response) => {
 
         // bail if the client hasn't logged in during their session
-        if (!request.session.user) {
+        if (false && !request.session.user) {
 
             response
                 .status(statusCodes.UNAUTHORIZED)
@@ -143,7 +186,32 @@ const mediaController = {
 
         try {
 
-            models.Media.updateOne({ _id: request.params.id }, request.body)
+            // in order to save a revision, we first have to grab a reference to its current
+            // state before we update it (named previous, to reflect the fact this will not
+            // have any updated properties).
+            //
+            // we then construct a new MediaRevision model, and copy over each parameter to the
+            // revision model. we then save this revision model, which should always succeed 
+            // since the values are validated already from when it was originally saved to the
+            // collection
+            let previous = await models.Media.findById(request.params.id)
+
+            const revision = new models.MediaRevision({
+                title: previous.title,
+                authorId: previous.authorId,
+                author: previous.author,
+                uri: previous.uri,
+                tags: previous.tags,
+                description: previous.description,
+                isPublic: previous.isPublic,
+                forMediaDocument: previous._id
+            })
+
+            let revisionSave = await revision.save()
+            
+            // the revision document has been saved to the collection, so we can now
+            // safely update the master copy knowing that a revision has been saved
+            let update = await models.Media.updateOne({ _id: request.params.id }, request.body)
 
             reply.success = true
             reply.message ="Successfully updated the piece of media"

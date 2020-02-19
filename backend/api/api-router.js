@@ -38,6 +38,12 @@ const routeApi = (router) => {
         .get(controllers.media.findOne)
         .delete(controllers.media.deleteOne)
         .put(controllers.media.updateOne)
+
+    /**
+     * ENDPOINT /media/revision/:masterId
+     */
+    router.route('/media/revisions/:masterId')
+        .get(controllers.media.getAllRevisions)
 }
 
 module.exports = routeApi
