@@ -145,12 +145,36 @@ const mediaController = {
 
         try {
 
-            let media = await models.Media.findById(request.params.id)
+            let opts = {
+                _id: request.params.id,
+                __t: "Master"
+            }
 
-            reply.media = media
-            reply.message = "Successfully found this piece of media"
+            let media = await models.Media.findOne(opts)
 
-            response.status(statusCodes.OK)
+            if (media && !media.isPublic && !request.session.user) {
+
+                response
+                    .status(statusCodes.UNAUTHORIZED)
+                    .json(responseFactory.createUnauthorizedResponse("Refused to get media"))
+
+                return
+            }
+            else if (media) {
+
+                reply.media = media
+                reply.message = "Successfully found this piece of media"
+    
+                response.status(statusCodes.OK)
+            }
+            else {
+
+                reply.media = false
+                reply.message = "Couldn't find the piece of media"
+    
+                response.status(statusCodes.NOT_FOUND)
+            }
+
             response.json(reply)
         }
         catch (error) {
@@ -215,7 +239,7 @@ const mediaController = {
     updateOne: async (request, response) => {
 
         // bail if the client hasn't logged in during their session
-        if (false && !request.session.user) {
+        if (!request.session.user) {
 
             response
                 .status(statusCodes.UNAUTHORIZED)
@@ -227,6 +251,8 @@ const mediaController = {
         let reply = responseFactory.createUpdateResponse()
 
         try {
+
+            console.log("UPDATING: ", request.params.id, request.body)
 
             // in order to save a revision, we first have to grab a reference to its current
             // state before we update it (named previous, to reflect the fact this will not
@@ -240,6 +266,7 @@ const mediaController = {
 
             const revision = new models.MediaRevision({
                 title: previous.title,
+                date: new Date(),
                 authorId: previous.authorId,
                 author: previous.author,
                 uri: previous.uri,
@@ -248,12 +275,13 @@ const mediaController = {
                 isPublic: previous.isPublic,
                 forMediaDocument: previous._id
             })
-
-            let revisionSave = await revision.save()
             
-            // the revision document has been saved to the collection, so we can now
-            // safely update the master copy knowing that a revision has been saved
+            // the revision document has been created (but not yet saved), so we can now
+            // update the master copy knowing that a revision has been saved
             let update = await models.Media.updateOne({ _id: request.params.id }, request.body)
+
+            // now save the revision - done after the update request incase that fails
+            let revisionSave = await revision.save()
 
             reply.success = true
             reply.message ="Successfully updated the piece of media"

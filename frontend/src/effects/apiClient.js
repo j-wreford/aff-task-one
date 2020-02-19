@@ -50,7 +50,7 @@ export default (method, rawEndpoint) => {
     /**
      * The data to be posted if this is a post request
      */
-    const [postData, setPostData] = React.useState(null)
+    const [requestBody, setRequestBody] = React.useState(null)
 
     /**
      * The data this api call will return
@@ -72,9 +72,8 @@ export default (method, rawEndpoint) => {
      */
     const trigger = (data, params) => {
 
-        // set the post data property if this is a post request  
-        if (data && method === "post")
-            setPostData(data)
+        if (data)
+            setRequestBody(data)
 
         if (params)
             setEndpointParams(params)
@@ -102,8 +101,9 @@ export default (method, rawEndpoint) => {
             url: endpoint
         }
 
-        if (method === "post")
-            opts.data = postData
+        // if body data was given, set it
+        if (requestBody)
+            opts.data = requestBody
 
         console.log("apiClient.js: Making an API request. ", endpointParams, opts)
 
@@ -134,14 +134,13 @@ export default (method, rawEndpoint) => {
     }
 
     /**
-     * Triggers the request to the api
+     * Triggers the api request
      */
     React.useEffect(() => {
 
-        if (triggerFlag) {
-
+        if (triggerFlag)
             makeRequest()
-        }
+
     }, [triggerFlag])
 
     return [trigger, inProgress, response]

@@ -3,8 +3,8 @@ import React from 'react'
 import { useHistory } from 'react-router-dom'
 
 // material ui
-import { Grid, Typography, Button } from '@material-ui/core'
-import { Delete as DeleteIcon } from '@material-ui/icons'
+import { Grid, Paper, Typography, Button, List, ListItem, ListItemIcon, ListItemText } from '@material-ui/core'
+import { Delete as DeleteIcon, Edit as EditIcon, History as HistoryIcon } from '@material-ui/icons'
 
 // http status codes
 import statusCodes from 'http-status-codes'
@@ -14,8 +14,8 @@ import moment from 'moment'
 
 // application
 import PaddedPaper from './hoc/PaddedPaper'
-import SubtleButton from './hoc/SubtleButton'
 import useApi, { endpoints as apiEndpoints } from '../effects/apiClient'
+import useStyles from '../resource/styles/mediaViewOriginalSidebarStyles'
 
 /**
  * Presents an interface that displays a sidebar containing actions and revision
@@ -27,6 +27,11 @@ export default function MediaViewOriginalSidebar(props) {
      * Browser navigator
      */
     const history = useHistory()
+
+    /**
+     * Component classes
+     */
+    const classes = useStyles()
 
     /**
      * Api call to remove this piece of media
@@ -88,6 +93,13 @@ export default function MediaViewOriginalSidebar(props) {
     }
 
     /**
+     * Directs the browser to /media/:id/edit
+     */
+    const handleActionEditButtonOnClick = event => {
+        history.push("/media/" + props.mediaDocument._id + "/edit")
+    }
+
+    /**
      * Directs the browser to view the given revision media document
      */
     const handleRevisionButtonOnClick = revisionId => event => {
@@ -106,29 +118,45 @@ export default function MediaViewOriginalSidebar(props) {
         <Grid item xs={3}>
             <Grid container spacing={3}>
                 <Grid item xs={12}>
-                    <PaddedPaper>
-                        <Typography variant="h6">Actions</Typography>
-                        <br />
-                        <Button
-                            variant="contained"
-                            color="secondary"
-                            startIcon={<DeleteIcon />}
-                            disabled={deleteMediaIsInProgress}
-                            onClick={handleActionDeleteButtonOnClick}
-                        >
-                            Delete
-                        </Button>
-                    </PaddedPaper>
+                    <Paper>
+                        <div className={classes.sectionHeader}>
+                            <Typography variant="h6">Actions</Typography>
+                        </div>
+                        <List>
+                            <ListItem button color="secondary" disabled={deleteMediaIsInProgress} onClick={handleActionDeleteButtonOnClick}>
+                                <ListItemIcon>
+                                    <DeleteIcon />
+                                </ListItemIcon>
+                                <ListItemText primary="Delete" />
+                            </ListItem>
+                            <ListItem button color="secondary" onClick={handleActionEditButtonOnClick}>
+                                <ListItemIcon>
+                                    <EditIcon />
+                                </ListItemIcon>
+                                <ListItemText primary="Edit" />
+                            </ListItem>
+                        </List>
+                    </Paper>
                 </Grid>
                 <Grid item xs={12}>
-                    <PaddedPaper>
-                        <Typography variant="h6">Revision History</Typography>
-                        {revisions.map((revisionDocument, index) => {
+                    <Paper>
+                        <div className={classes.sectionHeader}>
+                            <Typography variant="h6">Revision History</Typography>
+                            {revisions.length > 0 ? null : <Typography className={classes.subtleParagraph} variant="p">There are no revisions to show</Typography>}
+                        </div>
+                        <List>
+                        {revisions.slice(0).reverse().map((revisionDocument, index) => {
                             return (
-                                <SubtleButton onClick={handleRevisionButtonOnClick(revisionDocument._id)}>{index + 1}. {dateStringToHumanReadable(revisionDocument.date)}</SubtleButton>
+                                <ListItem button onClick={handleRevisionButtonOnClick(revisionDocument._id)}>
+                                    <ListItemIcon>
+                                        <HistoryIcon />
+                                    </ListItemIcon>
+                                    <ListItemText primary={`${dateStringToHumanReadable(revisionDocument.date)}`} />
+                                </ListItem>
                             )
                         })}
-                    </PaddedPaper>
+                        </List>
+                    </Paper>
                 </Grid>
             </Grid>
         </Grid>    
