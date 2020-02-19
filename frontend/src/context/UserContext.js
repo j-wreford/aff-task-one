@@ -39,13 +39,10 @@ export default (props) => {
     const [user, setUser] = React.useState(false)
 
     /**
-     * Solves discrepancies between session cookies and user obejcts.
+     * Solves a discrepancy between session cookies and user obejcts.
      * 
      * If a session cookie is present on the browser, but we have no user object, then
      * request it from the api server.
-     * 
-     * If a user object is present, but there is no session cookie present on the browser,
-     * then remove the user object.
      */
     React.useEffect(() => {
 
@@ -64,12 +61,22 @@ export default (props) => {
                 })
         }
 
+    }, [user])
+
+    /**
+     * Solves a discrepancy between session cookies and user obejcts.
+     * 
+     * If a user object is present, but there is no session cookie present on the browser,
+     * then remove the user object.
+     */
+    React.useEffect(() => {
+
         if (user && !cookies[constants.SID_COOKIE_NAME]) {
 
             console.info("UserContext.js: User object present but no session cookie. Removing user object...")
             setUser(false)
         }
-    })
+    }, cookies)
 
     return (
         <UserContext.Provider value={[user, setUser]}>
