@@ -73,7 +73,9 @@ const mediaController = {
 
         try {
 
-            let revisions = await models.MediaRevision.find()
+            let revisions = await models.MediaRevision.find({
+                forMediaDocument: request.params.id
+            })
 
             reply.revisions = revisions
             reply.message = "Successfully found revisions"
