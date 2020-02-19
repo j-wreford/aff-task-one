@@ -10,7 +10,7 @@ import { Typography, Paper, Switch } from '@material-ui/core'
 // application
 import MediaUpload from '../MediaUpload'
 import MediaBrowser from '../MediaBrowser'
-import MediaView from '../MediaView'
+import MediaViewLayout, { viewModes } from '../MediaViewLayout'
 import { UserContext } from '../../context/UserContext'
 import useStyles from '../../resource/styles/appAreaStyles'
 
@@ -39,30 +39,14 @@ export default function AppArea(props) {
      */
     const renderRoutes = () => {
         
-        let components = (
-            <main className={classes.content}>
-                {/**
-                 * @TODO    If the current path is NOT /browse AND the user
-                 *          is not logged in, then render a  <Redirect />
-                 *          component with path="/browse".
-                 *          This should eleminate the need for conditional
-                 *          route rendering below.
-                 *          For additional security, each route path below
-                 *          can provide an additional safety layer of only
-                 *          rendering if the UserContext is not null.
-                 *          The media browser component will handle the
-                 *          differences between a logged in / logged out 
-                 *          state itself.
-                */}
-                <Typography>You're logged out</Typography>
-            </main>
-        )
+        let components
 
         if (user) {
             components = (
                 <main className={classes.content}>
                     <Route path="/upload" component={MediaUpload} />
-                    <Route path="/media/:id" component={MediaView} />
+                    <Route path="/media/:id" render={props => <MediaViewLayout viewMode={viewModes.VIEW_ORIGINAL} {...props} />} />
+                    <Route path="/revision/:id" render={props => <MediaViewLayout viewMode={viewModes.VIEW_REVISION} {...props} />} />
                     <Route path="/browse" component={MediaBrowser} />
                     <Route path="/chat" component={Typography} />
                 </main>
@@ -71,7 +55,7 @@ export default function AppArea(props) {
             components = (
                 <main className={classes.content}>
                     <Route path="/browse" component={MediaBrowser} />
-                    <Route path="/media/:id" component={MediaView} />
+                    <Route path="/media/:id" render={props => <MediaViewLayout viewMode={viewModes.VIEW_ORIGINAL} {...props} />} />
                 </main>
             )
         }

@@ -149,9 +149,10 @@ const userController = {
         else {
 
             reply.message = "Logout failed (client user wasn't logged in)"
+            reply.loggedOut = false
         }
 
-        response.json(reply)
+        response.status(statusCodes.OK).json(reply)
     },
 
     /**

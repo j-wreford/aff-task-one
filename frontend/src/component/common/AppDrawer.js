@@ -9,13 +9,16 @@ import clsx from 'clsx'
 import { Drawer, Typography, Divider, Button, ButtonBase, IconButton, ListItem, ListItemIcon, ListItemText, Fade } from '@material-ui/core'
 import { ChevronLeft as ChevronLeftIcon, Menu as MenuIcon, CloudUpload as CloudUploadIcon, PermMedia as PermMediaIcon, ExitToApp as ExitToAppIcon, Chat as ChatIcon, VpnKey } from '@material-ui/icons'
 
-// api call
-import axios from 'axios'
+// http status codes
+import statusCodes from 'http-status-codes'
+
+// cookies manager
 import { useCookies } from 'react-cookie'
 
 // application
 import constants from '../../constants'
 import { UserContext } from '../../context/UserContext'
+import useApi, {endpoints as apiEndpoints} from '../../effects/apiClient'
 import useStyles from '../../resource/styles/appDrawerStyles'
 
 /**
@@ -23,6 +26,11 @@ import useStyles from '../../resource/styles/appDrawerStyles'
  * main views
  */
 export default function AppDrawer(props) {
+
+    /**
+     * Api call to logout
+     */
+    const [logout, logoutIsInProgress, logoutResponse] = useApi("post", apiEndpoints.USER_LOGOUT)
 
     /**
      * Component classes
@@ -62,13 +70,23 @@ export default function AppDrawer(props) {
      * Notifies the API that the user wishes to be logged out and
      * explicitly removes the cookie from the browser
      */
-    const handleLogoutButtonClick = async () => {
-    
-        await axios.post("http://127.0.0.1:5000/user/logout")    
-        removeCookie(constants.SID_COOKIE_NAME)
-        setUser(false)
-        history.push("/login")
+    const handleLogoutButtonClick = () => {
+        logout()
     }
+
+    /**
+     * React to a response from the api when requesting the current user logs out
+     */
+    React.useEffect(() => {
+
+        if (logoutResponse &&
+            logoutResponse.status === statusCodes.OK &&
+            logoutResponse.data) {
+            removeCookie(constants.SID_COOKIE_NAME)
+            setUser(false)
+            history.push("/login")
+        }
+    }, [logoutResponse])
 
     /**
      * Menu configuration.

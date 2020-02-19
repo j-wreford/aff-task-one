@@ -16,10 +16,14 @@ const api = axios.create({
  * Client supported endpoints
  */
 export const endpoints = {
+    USER: "/user",
     USER_AUTH: "/user/auth",
     USER_LOGOUT: "/user/logout",
+    USER_ONE: "/user/:id", // TODO
     MEDIA: "/media",
-    REVISIONS: "/media/revisions"
+    MEDIA_ONE: "/media/:id",
+    MEDIA_REVISION_ALL: "/media/:id/revisions",
+    MEDIA_REVISION_ONE: "/revision/:id"
 }
 
 /**
@@ -27,13 +31,21 @@ export const endpoints = {
  * and have calling components update their state accordingly regardless
  * of the fact that this is an asynchronous operation.
  * 
+ * Endpoints can have parameters using the :param syntax. They're replaced
+ * when the api call is triggered.
+ * 
  * Three references are returned when calling this effect. They are:
  *  1) The function to call to trigger the api call
  *  2) A boolean value indicating the progress of the api call
  *  3) The response from the api server. This value can either be a response
  *     object, or -1 (indicating a pre flight-error)
  */
-export default (method, endpoint) => {
+export default (method, rawEndpoint) => {
+
+    /**
+     * Endpoint parameter values to replace parameter placeholders within the rawEndpoint
+     */
+    const [endpointParams, setEndpointParams] = React.useState({})
 
     /**
      * The data to be posted if this is a post request
@@ -51,20 +63,23 @@ export default (method, endpoint) => {
     const [inProgress, setInProgress] = React.useState(false)
 
     /**
-     * Triggers the effect to make a request
+     * When flipped to true, makeRequest() is called through a React.useEffect()
      */
-    const [triggered, setTriggered] = React.useState(false)
+    const [triggerFlag, setTriggerFlag] = React.useState(false)
 
     /**
-     * Sets triggered to true and subsequently triggers the effect to execute
+     * Triggers the api call
      */
-    const trigger = (data) => {
+    const trigger = (data, params) => {
 
-        if (method === "post")
+        // set the post data property if this is a post request  
+        if (data && method === "post")
             setPostData(data)
 
-        setInProgress(true)
-        setTriggered(true)
+        if (params)
+            setEndpointParams(params)
+
+        setTriggerFlag(true)
     }
 
     /**
@@ -72,7 +87,17 @@ export default (method, endpoint) => {
      */
     async function makeRequest() {
 
-        const opts = {
+        setInProgress(true)
+
+        // swap placeholders within rawEndpoint with their real values
+        let endpoint = rawEndpoint
+        if (endpointParams) {
+            for (const [paramKey, paramValue] of Object.entries(endpointParams))
+                endpoint = endpoint.replace(":" + paramKey, paramValue)
+        }
+
+        // build the configuration object for this request
+        let opts = {
             method: method,
             url: endpoint
         }
@@ -80,14 +105,17 @@ export default (method, endpoint) => {
         if (method === "post")
             opts.data = postData
 
-        console.log("apiClient.js: Making an API request. ", opts)
+        console.log("apiClient.js: Making an API request. ", endpointParams, opts)
 
         try {
 
             const reply = await api(opts)
+
+            console.log("apiClient.js: Request succeeded. ", reply)
+
             setResponse(reply)
+            setTriggerFlag(false)
             setInProgress(false)
-            setTriggered(false)
         }
         catch (error) {
 
@@ -98,24 +126,23 @@ export default (method, endpoint) => {
             else
                 setResponse(error.response)
 
+            console.log("apiClient.js: Request failed. ", error)
+
+            setTriggerFlag(false)
             setInProgress(false)
-            setTriggered(false)
         }
     }
 
     /**
-     * Executes the api call once triggered mutates
+     * Triggers the request to the api
      */
     React.useEffect(() => {
 
-        if (triggered && inProgress)
+        if (triggerFlag) {
+
             makeRequest()
-
-        return () => {
-            //
-        };
-
-    }, [triggered])
+        }
+    }, [triggerFlag])
 
     return [trigger, inProgress, response]
 }

@@ -8,7 +8,7 @@ const routeApi = (router) => {
     /**
      * ENDPOINT /user/register
      */
-    router.route('/user/register')
+    router.route('/user')
         .post(controllers.user.register)
 
     /**
@@ -40,10 +40,16 @@ const routeApi = (router) => {
         .put(controllers.media.updateOne)
 
     /**
-     * ENDPOINT /media/revision/:masterId
+     * ENDPOINT /media/:id/revisions
      */
-    router.route('/media/revisions/:masterId')
+    router.route('/media/:id/revisions')
         .get(controllers.media.getAllRevisions)
+
+    /**
+     * ENDPOINT /revision/:id
+     */
+    router.route('/revision/:id')
+        .get(controllers.media.getOneRevision)
 }
 
 module.exports = routeApi
