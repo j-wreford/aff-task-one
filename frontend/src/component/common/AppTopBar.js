@@ -25,13 +25,13 @@ export default function AppTopBar(props) {
     /**
      * Information about the currently logged in user
      */
-    const userContext = React.useContext(UserContext)
+    const [user] = React.useContext(UserContext)
 
     /**
      * Shows a login button if the user is logged out
      */
     const renderLoginButton = () => {
-        if (!userContext)
+        if (!user && false)
             return <Button disableElevation variant="contained" color="secondary" component={Link} to="/login">Login</Button>
     }
 
