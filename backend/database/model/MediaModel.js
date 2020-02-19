@@ -9,6 +9,11 @@ const UserAccount = require('./UserAccoutModel')
  */
 const mediaSchema = new mongoose.Schema(
     {
+        __t: {
+            type: String,
+            required: true,
+            default: "Master"
+        },
         title: {
             type: String,
             required: true,
