@@ -59,7 +59,7 @@ const userController = {
                 reply.message = "Successfully logged in"
 
                 let sanitised = {
-                    id: user._id,
+                    _id: user._id,
                     username: user.username,
                     fname: user.fname,
                     lname: user.lname,
@@ -120,7 +120,16 @@ const userController = {
         if (request.session && request.session.user) {
 
             reply.message = "Client is logged in"
-            reply.user = request.session.user
+
+            let sanitised = {
+                _id: user._id,
+                username: user.username,
+                fname: user.fname,
+                lname: user.lname,
+                creationDate: user.creationDate
+            }
+
+            reply.user = sanitised
         }
         else {
 
