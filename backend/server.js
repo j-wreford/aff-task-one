@@ -1,23 +1,26 @@
 /**
  * Requires
  */
-const express = require('express')              // request listener
-const http = require('http')                    // http server which will use express as its listener
-const cors = require('cors')                    // express middleware to enable cross origin resource sharing
-const bodyParser = require('body-parser')       // express middleware to parse request bodies into an object
-const session = require('express-session')      // express middleware to store session based data, such as user info
-const cookieParser = require('cookie-parser')   // parses cookies bundled with a request
+const express = require('express')                  // request listener
+const http = require('http')                        // http server which will use express as its listener
+const socketio = require('socket.io')               // powers chat functionality
+const cors = require('cors')                        // express middleware to enable cross origin resource sharing
+const bodyParser = require('body-parser')           // express middleware to parse request bodies into an object
+const session = require('express-session')          // express middleware to store session based data, such as user info
+const cookieParser = require('cookie-parser')       // parses cookies bundled with a request
 
-const routeApi = require('./api/api-router')    // routes request endpoints to api routines
-const dbConnect = require('./database/connect') // connects to mongodb using mongoose
+const routeApi = require('./api/api-router')        // routes request endpoints to api routines
+const dbConnect = require('./database/connect')     // connects to mongodb using mongoose
+const ioControllers = require('./chat/controllers') // socketio socket event controllers
 
 /**
  * Object instantiations
  */
-const app = express()                           // the express application itself
-const router = express.Router()                 // express request routing
-const server = http.createServer(app)           // http server
-const database = dbConnect(                     // mongoose database connection
+const app = express()                               // the express application itself
+const router = express.Router()                     // express request routing
+const server = http.createServer(app)               // http server
+const io = socketio(server)                         // chat
+const database = dbConnect(                         // mongoose database connection
     "localhost",
     27017,
     "aff_task_one"
@@ -81,6 +84,22 @@ app.set("port", process.env.PORT || 5000)
  */
 routeApi(router)
 app.use('/', router)
+
+/**
+ * Socket configuration
+ */
+io.on("connection", socket => {
+
+    // controller functions are bound to this property so that they may
+    // use these objects within their respective modules
+    const bindObj = {
+        io, socket
+    }
+
+    socket.on("join", ioControllers.join.bind(bindObj))
+    socket.on("disconnect", ioControllers.disconnect.bind(bindObj))
+    socket.on("send_message", ioControllers.sendMessage.bind(bindObj))
+})
 
 /**
  * Database
