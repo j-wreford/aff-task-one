@@ -9,9 +9,9 @@ const DEFAULT_ROOM = "default_room"
  * 
  * @TODO adjust once a user is a real user object
  */
-module.exports = function disconnect() {
+module.exports = function disconnect(userId) {
 
-    const user = chatUsers.removeUser()
+    const user = chatUsers.removeUser(userId)
 
     if (!user)
         return
@@ -19,7 +19,7 @@ module.exports = function disconnect() {
     // inform current chatters that the user has left
     this.io.to(DEFAULT_ROOM).emit("message", {
         user: "system",
-        text: `${user} has left the chat.`
+        text: `${user.fname} has left the chat.`
     })
     
     // inform the room of the change in users
