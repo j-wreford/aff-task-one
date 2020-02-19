@@ -18,7 +18,8 @@ const api = axios.create({
 export const endpoints = {
     USER_AUTH: "/user/auth",
     USER_LOGOUT: "/user/logout",
-    MEDIA: "/media"
+    MEDIA: "/media",
+    REVISIONS: "/media/revisions"
 }
 
 /**
