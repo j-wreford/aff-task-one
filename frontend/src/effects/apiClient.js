@@ -72,9 +72,8 @@ export default (method, rawEndpoint) => {
      */
     const trigger = (data, params) => {
 
-        // set the request body, if it exists
         if (data)
-        setRequestBody(data)
+            setRequestBody(data)
 
         if (params)
             setEndpointParams(params)
@@ -135,14 +134,13 @@ export default (method, rawEndpoint) => {
     }
 
     /**
-     * Triggers the request to the api
+     * Triggers the api request
      */
     React.useEffect(() => {
 
-        if (triggerFlag) {
-
+        if (triggerFlag)
             makeRequest()
-        }
+
     }, [triggerFlag])
 
     return [trigger, inProgress, response]
