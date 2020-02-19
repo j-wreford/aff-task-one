@@ -11,6 +11,7 @@ import { Typography, Paper, Switch } from '@material-ui/core'
 import MediaUpload from '../MediaUpload'
 import MediaBrowser from '../MediaBrowser'
 import MediaViewLayout, { viewModes } from '../MediaViewLayout'
+import Chat from '../Chat'
 import { UserContext } from '../../context/UserContext'
 import useStyles from '../../resource/styles/appAreaStyles'
 
@@ -49,7 +50,7 @@ export default function AppArea(props) {
                     <Route exact path="/media/:id/edit" render={props => <MediaViewLayout viewMode={viewModes.EDIT_ORIGINAL} {...props} />} />
                     <Route path="/revision/:id" render={props => <MediaViewLayout viewMode={viewModes.VIEW_REVISION} {...props} />} />
                     <Route path="/browse" component={MediaBrowser} />
-                    <Route path="/chat" component={Typography} />
+                    <Route path="/chat" component={Chat} />
                 </main>
             )
         } else {
