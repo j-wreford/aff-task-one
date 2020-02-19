@@ -16,5 +16,8 @@ export default makeStyles(theme => ({
         fontStyle: "italic",
         opacity: 0.6,
         marginTop: theme.spacing(0.5)
+    },
+    description: {
+        whiteSpace: "pre-line"
     }
 }))

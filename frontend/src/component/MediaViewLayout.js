@@ -3,7 +3,7 @@ import React from 'react'
 import { useHistory } from 'react-router-dom'
 
 // material ui
-import { Grid, Chip, Typography, Button, Link, IconButton } from '@material-ui/core'
+import { Grid, Chip, Typography, Button, Link, IconButton, FormControl, FormControlLabel, InputLabel, FormHelperText, OutlinedInput, TextField } from '@material-ui/core'
 import { ArrowBack as ArrowBackIcon, Launch as LaunchIcon, Delete as DeleteIcon } from '@material-ui/icons'
 
 // http status codes
@@ -11,11 +11,12 @@ import statusCodes from 'http-status-codes'
 
 // application
 import PaddedPaper from './hoc/PaddedPaper'
+import SubtleButton from './hoc/SubtleButton'
 import { UserContext } from '../context/UserContext'
 import useStyles from '../resource/styles/mediaViewLayoutStyles'
 import useApi, { endpoints as apiEndpoints } from '../effects/apiClient'
+import MediaViewHeader from './MediaViewHeader'
 import MediaViewOriginalSidebar from './MediaViewOriginalSiderbar'
-import MediaViewRevisionHeader from './MediaViewRevisionHeader'
 
 /**
  * An enumeration of the allowed view modes of the component
@@ -49,6 +50,11 @@ export default function MediaViewLayout(props) {
     const [getMediaDocument, getMediaDocumentIsInProgress, getMediaDocumentResponse] = useApi("get", apiEndpoints.MEDIA_ONE)
 
     /**
+     * Api call to update this media document, if viewMode is viewModes.EDIT_ORIGINAL
+     */
+    const [putMediaDocument, putMediaDocumentIsInProgress, putMediaDocumentResponse] = useApi("put", apiEndpoints.MEDIA_ONE)
+
+    /**
      * Api call to get this media revision document, if viewMode is viewModes.VIEW_REVISION
      */
     const [getRevisionDocument, getRevisionDocumentIsInProgress, getRevisionDocumentResponse] = useApi("get", apiEndpoints.MEDIA_REVISION_ONE)
@@ -63,7 +69,7 @@ export default function MediaViewLayout(props) {
      * Likewise, when set to viewModes.VIEW_REVISION, the component will render a <MediaViewRevisionHeader /> component,
      * which renders a header containing actions such as restoring the document.
      */
-    const viewMode = props.viewMode || viewModes.VIEW_ORIGINAL
+    const [viewMode, setViewMode] = React.useState(props.viewMode || viewModes.VIEW_ORIGINAL)
 
     /**
      * The media document this layout is rendering.
@@ -73,9 +79,39 @@ export default function MediaViewLayout(props) {
     const [mediaDocument, setMediaDocument] = React.useState(null)
 
     /**
+     * Form states and change handlers. Only applicable when viewMode is viewModes.EDIT_ORIGINAL
+     */
+    const form = {
+        states: {
+            title: React.useState(""),
+            description: React.useState(""),
+            uri: React.useState("")
+        },
+        changeHandlers: {
+            title: event => {
+                const [get, set] = form.states.title
+                set(event.target.value)
+            },
+            description: event => {
+                const [get, set] = form.states.description
+                set(event.target.value)
+            },
+            uri: event => {
+                const [get, set] = form.states.uri
+                set(event.target.value)
+            }
+        }
+    }
+
+    /**
      * Component classes
      */
     const classes = useStyles()
+
+    /**
+     * Browser navigator
+     */
+    const history = useHistory()
 
     /**
      * Fetch the appropriate media document on first mount
@@ -108,13 +144,34 @@ export default function MediaViewLayout(props) {
 
         if (response &&
             response.status === statusCodes.OK &&
-            response.data.media)
+            response.data.media) {
+                console.log(response)
             setMediaDocument(response.data.media)
+        }
 
     }, [getMediaDocumentResponse])
 
     /**
-     * Set mediaDocument on response to a change in getMediaRevisionResponse
+     * Navigate back to the original media document in response to a change
+     * in putMediaDocumentResponse
+     */
+    React.useEffect(() => {
+
+        if (viewMode !== viewModes.EDIT_ORIGINAL)
+            return
+
+        let response = putMediaDocumentResponse
+
+        if (response &&
+            response.status === statusCodes.OK &&
+            response.data.success) {
+                history.push("/media/" + mediaDocument._id)
+            }
+
+    }, [putMediaDocumentResponse])
+
+    /**
+     * Set mediaDocument on response to a change in getRevisionDocumentResponse
      */
     React.useEffect(() => {
 
@@ -128,12 +185,102 @@ export default function MediaViewLayout(props) {
     }, [getRevisionDocumentResponse])
 
     /**
-     * Returns the <MediaViewRevisionHeader /> component, if viewMode is viewModes.VIEW_REVISION
+     * Update form state in response to a change in mediaDocument, if viewMode
+     * is viewModes.EDIT_ORIGINAL
+     */
+    React.useEffect(() => {
+
+        if (mediaDocument) {
+
+            for (const field of ["title", "description", "uri"]) {
+                const [get, set] = form.states[field]
+                set(mediaDocument[field])
+            }
+        }
+    }, [mediaDocument])
+
+    /**
+     * If viewMode is viewModes.VIEW_REVISION, then the current revision
+     * is restored
+     * @TODO
+     */
+    const handleRestoreButtonOnClick = event => {
+        event.preventDefault()
+    }
+
+    /**
+     * If viewMode is viewModes.VIEW_REVISION or viewModes.EDIT_ORIGINAL,
+     * then directs the browser back to the original media document view
+     */
+    const handleReturnToOriginalButtonOnClick = (event) => {
+        event.preventDefault()
+
+        let path
+
+        switch (viewMode) {
+
+            case viewModes.VIEW_REVISION:
+                path = "/media/" + mediaDocument.forMediaDocument
+            break
+
+            case viewModes.EDIT_ORIGINAL:
+                path = "/media/" + mediaDocument._id 
+            break
+        }
+        
+        history.push(path)
+    }
+
+    /**
+     * If viewMode is viewModes.EDIT_ORIGINAL, then a request is made to the api
+     * to update the document based on the contents of mediaDocument
+     */
+    const handleOnFormSubmit = event => {
+        event.preventDefault()
+
+        if (viewMode !== viewModes.EDIT_ORIGINAL)
+            return
+
+        putMediaDocument(
+            {
+                title: form.states.title[0],
+                uri: form.states.uri[0],
+                description: form.states.description[0]
+            },
+            {
+                id: mediaDocument._id
+            }
+        )
+    }
+
+    /**
+     * Returns the the header to be used if viewMode is viewModes.EDIT_ORIGINAL
+     */
+    const renderViewModeEditHeader = () => {
+
+        if (viewMode === viewModes.EDIT_ORIGINAL)
+            return (
+                <MediaViewHeader title="Editing a document" severity="info">
+                    <SubtleButton onClick={handleOnFormSubmit} color="primary">Save changes</SubtleButton>
+                        or
+                    <SubtleButton onClick={handleReturnToOriginalButtonOnClick} color="primary">cancel</SubtleButton>
+                </MediaViewHeader>
+            )
+    }
+
+    /**
+     * Returns the the header to be used if viewMode is viewModes.VIEW_REVISION
      */
     const renderViewModeRevisionHeader = () => {
 
         if (viewMode === viewModes.VIEW_REVISION)
-            return <MediaViewRevisionHeader mediaDocument={mediaDocument} />
+            return (
+                <MediaViewHeader title="Viewing a revision" severity="info">
+                    <SubtleButton onClick={handleRestoreButtonOnClick} color="primary">Restore this version</SubtleButton>
+                        or
+                    <SubtleButton onClick={handleReturnToOriginalButtonOnClick} color="primary">go back</SubtleButton>
+                </MediaViewHeader>
+            )
     }
 
     /**
@@ -145,24 +292,144 @@ export default function MediaViewLayout(props) {
             return <MediaViewOriginalSidebar mediaDocument={mediaDocument} />
     }
 
+    /**
+     * Renders the title or an input to edit the title, depending on the viewMode
+     */
+    const renderTitle = () => {
+
+        let component
+
+        switch (viewMode) {
+
+            case viewModes.VIEW_ORIGINAL:
+            case viewModes.VIEW_REVISION:
+                component = <Typography variant="h5">{mediaDocument.title}</Typography>
+            break
+
+            case viewModes.EDIT_ORIGINAL:
+                component = (
+                    <FormControl fullWidth={true} error={false} variant="outlined" margin="normal">
+                        <InputLabel htmlFor="title">Title</InputLabel>
+                        <OutlinedInput
+                            label="Title"
+                            id="title"
+                            type="text"
+                            value={form.states.title[0]}
+                            onChange={form.changeHandlers.title}
+                            error={false}
+                        />
+                        <FormHelperText id="title-helper"></FormHelperText>
+                    </FormControl>
+                )
+            break
+        }
+
+        return component
+    }
+
+    /**
+     * Renders the description or an input to edit the description, depending on the viewMode
+     */
+    const renderDescription = () => {
+
+        let component
+
+        switch (viewMode) {
+
+            case viewModes.VIEW_ORIGINAL:
+            case viewModes.VIEW_REVISION:
+                component = <Typography className={classes.description} variant="p">{mediaDocument.description}</Typography>
+            break
+
+            case viewModes.EDIT_ORIGINAL:
+                component = (
+                    <FormControl fullWidth={true} error={false} variant="outlined" margin="normal">
+                        <TextField
+                            label="Description"
+                            id="description"
+                            multiline
+                            rows={10}
+                            variant="outlined"
+                            value={form.states.description[0]}
+                            onChange={form.changeHandlers.description}
+                            error={false}
+                        />
+                        <FormHelperText id="description-helper"></FormHelperText>
+                    </FormControl>
+                )
+            break
+        }
+
+        return component
+    }
+
+    /**
+     * Renders the media link or an input to edit the media link, depending on the viewMode
+     */
+    const renderMediaLink = () => {
+
+        let component
+
+        switch (viewMode) {
+
+            case viewModes.VIEW_ORIGINAL:
+            case viewModes.VIEW_REVISION:
+                component = <Link href={mediaDocument.uri} color="secondary" rel="noopener" target="_blank">{mediaDocument.uri} <LaunchIcon fontSize="small" className={classes.newTab} /></Link>
+            break
+
+            case viewModes.EDIT_ORIGINAL:
+                component = (
+                    <FormControl fullWidth={true} error={false} variant="outlined" margin="normal">
+                        <InputLabel htmlFor="uri">Resource Link</InputLabel>
+                        <OutlinedInput
+                            label="Resource Link"
+                            id="uri"
+                            type="text"
+                            value={form.states.uri[0]}
+                            onChange={form.changeHandlers.uri}
+                            error={false}
+                        />
+                        <FormHelperText id="uri-helper"></FormHelperText>
+                    </FormControl>
+                )
+            break
+        }
+
+        return component
+    }
+
+    /**
+     * Render unauthorised access if we have a response to the request for
+     * a media document and the user isn't logged in
+     */
+    if (getMediaDocumentResponse &&
+        getMediaDocumentResponse.status === statusCodes.UNAUTHORIZED)
+        return <Typography>You need to login to view this item</Typography>
+
+    // render not found
+    if (getMediaDocumentResponse &&
+        getMediaDocumentResponse.status === statusCodes.NOT_FOUND)
+        return <Typography>This item doesn't exist</Typography>
+
+    // render loading
     if (!mediaDocument)
         return <Typography>Loading...</Typography>
 
     return (
-        <React.Fragment>
+        <form onSubmit={handleOnFormSubmit}>
             <Grid container spacing={3}>
-                {/* If we're viewing a revision media document, then render the MediaViewRevisionHeader */}
+                {renderViewModeEditHeader()}
                 {renderViewModeRevisionHeader()}
                 <Grid item xs={12}>
                     <Grid container spacing={3}>
                         <Grid item xs={12}>
-                            <Typography variant="h5">{mediaDocument.title}</Typography>
-                            {mediaDocument.author ? (<Typography className={classes.uploadedBy} variant="h5">Uploaded by {mediaDocument.author.fname} {mediaDocument.author.lname}</Typography>) : ""}
-                            {mediaDocument.tags ? mediaDocument.tags.map(tag => {
+                            {renderTitle()}
+                            <Typography className={classes.uploadedBy} variant="h5">Uploaded by {mediaDocument.author.fname} {mediaDocument.author.lname}</Typography>
+                            {mediaDocument.tags.map(tag => {
                                 return (
                                     <Chip className={classes.tagChip} variant="outlined" color="secondary" label={tag}/>
                                 )
-                            }) : undefined}
+                            })}
                         </Grid>
                     </Grid>
                 </Grid>
@@ -173,13 +440,13 @@ export default function MediaViewLayout(props) {
                         <Grid item xs={12}>
                             <PaddedPaper>
                                 <Typography variant="h6">Description</Typography>
-                                <Typography variant="p">{mediaDocument.description}</Typography>
+                                {renderDescription()}
                             </PaddedPaper>
                         </Grid>
                         <Grid item xs={12}>
                             <PaddedPaper>
                                 <Typography variant="h6">Media Link</Typography>
-                                <Link href={mediaDocument.uri} color="secondary" rel="noopener" target="_blank">{mediaDocument.uri} <LaunchIcon fontSize="small" className={classes.newTab} /></Link>
+                                {renderMediaLink()}
                             </PaddedPaper>
                         </Grid>
                     </Grid>
@@ -187,6 +454,6 @@ export default function MediaViewLayout(props) {
                 {/* If we're viewing an original media document, render the MediaViewOriginalSidebar */}
                 {renderViewModeOriginalSidebar()}
             </Grid>
-        </React.Fragment>
+        </form>
     )
 }
