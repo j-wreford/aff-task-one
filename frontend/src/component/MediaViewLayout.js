@@ -22,9 +22,9 @@ import MediaViewRevisionHeader from './MediaViewRevisionHeader'
  */
 const viewModes = {
     VIEW_ORIGINAL: 0,
-    VIEW_REVISION: 1
+    EDIT_ORIGINAL: 1,
+    VIEW_REVISION: 2
 }
-
 export { viewModes }
 
 /**
