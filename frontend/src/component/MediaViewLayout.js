@@ -464,7 +464,7 @@ export default function MediaViewLayout(props) {
                 </Grid>
                 {/* If we're viewing an original media document, then make space for the sidebar. else,
                     make this grid item cover the full 12 columns */}
-                <Grid item xs={viewMode === viewModes.VIEW_ORIGINAL && user ? 9 : 12}>
+                <Grid item xs={12} md={viewMode === viewModes.VIEW_ORIGINAL && user ? 9 : 12}>
                     <Grid container spacing={3}>
                         <Grid item xs={12}>
                             <PaddedPaper>

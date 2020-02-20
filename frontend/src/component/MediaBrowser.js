@@ -96,7 +96,7 @@ export default function MediaBrowser(props) {
             <Grid container spacing={3}>
                 {media.map(item => {
                     return (
-                        <Grid item xs={6}>
+                        <Grid item xs={12} md={6} lg={4}>
                             <Card>
                                 <CardHeader
                                     className={classes.cardHeader}
