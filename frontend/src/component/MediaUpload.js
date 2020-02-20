@@ -1,5 +1,6 @@
 // react
 import React from 'react'
+import { useHistory } from 'react-router-dom'
 
 // material ui
 import { Grid, Box, Divider, Typography, FormControl, FormControlLabel, InputLabel, FormHelperText, OutlinedInput, TextField, Chip, Button, Switch } from '@material-ui/core'
@@ -25,6 +26,11 @@ export default function MediaUpload(props) {
      * Component classes
      */
     const classes = useStyles()
+
+    /**
+     * Browser navigator
+     */
+    const history = useHistory()
 
     /**
      * Describes variables used when contacting the api to upload
@@ -82,6 +88,9 @@ export default function MediaUpload(props) {
         setTitle(event.target.value)
     }
 
+    /**
+     * Updates uri state
+     */
     const handleOnChangeUri = event => {
         setUri(event.target.value)
     }
@@ -157,19 +166,29 @@ export default function MediaUpload(props) {
      * Updates form validation.
      */
     React.useEffect(() => {
+
+        let response = uploadResponse
     
-        if (uploadResponse) {
+        if (response) {
+
+            let status = response.status
+
+            // redirect if the upload was valid
+            if (status && status === statusCodes.OK &&
+                response.data && response.data.upload) {
+                history.push("/media/" + response.data.upload._id)
+            }
 
             // handle validation errors
-            if (uploadResponse.status === statusCodes.BAD_REQUEST &&
-                uploadResponse.data && uploadResponse.data.fields) {
+            if (status === statusCodes.BAD_REQUEST &&
+                response.data && response.data.fields) {
 
-                for (const [fieldName, fieldValidation] of Object.entries(uploadResponse.data.fields)) {
+                for (const [fieldName, fieldValidation] of Object.entries(response.data.fields)) {
                     setFieldValidation(fieldName, !fieldValidation.valid, fieldValidation.hint)
                 }
 
-                if (uploadResponse.data.message) {
-                    setFormPrompt(uploadResponse.data.message)
+                if (response.data.message) {
+                    setFormPrompt(response.data.message)
                 }
             }
         }
