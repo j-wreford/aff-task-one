@@ -25,15 +25,12 @@ const mediaController = {
 
         try {
 
-            let opts = {
-                isPublic: true,
-                __t: "Master"
-            }
+            let media
 
             if (request.session.user)
-                delete opts.isPublic
-
-            let media = await models.Media.find(opts)
+                media = await models.Media.findAllOriginals()
+            else
+                media = await models.Media.findAllPublicOriginals()
 
             reply.media = media
             reply.message = "Successfully found your media"

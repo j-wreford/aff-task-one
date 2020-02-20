@@ -57,6 +57,20 @@ const mediaSchema = new mongoose.Schema(
 )
 
 /**
+ * Static method to find all original documents
+ */
+mediaSchema.static("findAllOriginals", function() {
+    return this.find({ __t: "Master" })
+})
+
+/**
+ * Static method to find all public-only original documents
+ */
+mediaSchema.static("findAllPublicOriginals", function() {
+    return this.find({ __t: "Master", isPublic: true })
+})
+
+/**
  * Pre hook to save the actual user document onto the piece of media
  */
 mediaSchema.pre("save", async function(next) {
