@@ -208,7 +208,7 @@ export default function MediaUpload(props) {
                 <PaddedPaper>
                     <form onSubmit={handleOnFormSubmit}>
                         <Grid container item xs={12} spacing={3}>
-                            <Grid item xs={6}>
+                            <Grid item xs={12} md={6}>
                                 <Typography variant="subtitle2">Enter the title for the piece of media you're uploading.</Typography>
                                 <Typography variant="p">This is what will be displayed at the top of the page when viewing this item.</Typography>
                                 <FormControl fullWidth={true} error={validation.title.error} variant="outlined" margin="normal">
@@ -288,7 +288,7 @@ export default function MediaUpload(props) {
                                     />
                                 </FormControl>
                             </Grid>
-                            <Grid item xs={6}>
+                            <Grid item xs={12} md={6}>
                                 <Typography variant="subtitle2">Write a description.</Typography>
                                 <Typography variant="p">This will be displayed prominantly when viewing it later.</Typography>
                                 <FormControl fullWidth={true} error={validation.description.error} variant="outlined" margin="normal">

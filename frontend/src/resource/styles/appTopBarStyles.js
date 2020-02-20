@@ -8,7 +8,8 @@ export default makeStyles(theme => ({
     root: {
         position: 'sticky',
         top: 0,
-        display: 'flex'
+        display: 'flex',
+        zIndex: 10
     },
     grow: {
       flexGrow: 1
