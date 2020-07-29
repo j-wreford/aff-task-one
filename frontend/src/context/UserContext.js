@@ -11,7 +11,7 @@ import { useCookies } from 'react-cookie'
 import constants from '../constants'
 
 /**
- * Creates a React context that can be provides information about the currently
+ * Creates a React context that can be provided information about the currently
  * logged in user, as well as a method to update it.
  */
 export const UserContext = React.createContext({
