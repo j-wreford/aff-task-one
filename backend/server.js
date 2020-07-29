@@ -117,4 +117,5 @@ server.listen(
         console.log(`Express server running at http://localhost:${app.get("port")}.`)
     }
 )
-  
+
+module.exports = app
