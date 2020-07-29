@@ -119,6 +119,8 @@ const userController = {
 
         if (request.session && request.session.user) {
 
+            let user = request.session.user
+
             reply.message = "Client is logged in"
 
             let sanitised = {
@@ -190,6 +192,8 @@ const userController = {
 
             reply.message = "Something went wrong when trying to create your account"
             response.status(statusCodes.INTERNAL_SERVER_ERROR)
+
+            console.log(request.body)
 
             if (error && error.code) {
 
