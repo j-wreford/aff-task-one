@@ -2,7 +2,7 @@
 
 // react
 import React from 'react'
-import { Route, Siwtch } from 'react-router-dom'
+import { Route, Redirect } from 'react-router-dom'
 
 // material ui
 import { Typography, Paper, Switch } from '@material-ui/core'
@@ -67,6 +67,7 @@ export default function AppArea(props) {
 
     return (
         <div id="AppArea" className={classes.root}>
+            <Redirect exact from="/" to="/browse" />
             {props.children}
             {renderRoutes()}
         </div>
